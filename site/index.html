@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>엄마손 반찬 · 오늘의 반찬</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* 레이아웃: 가게 정보 → 오늘 요약 → [분류 탭 | 보기 전환] → 한눈에 보기(목록) 또는 사진으로 보기(카드) */
+:root{
+  --bg:#f6f8f4; --surface:#fff; --line:#dde4d8; --fg:#1e2a1f; --muted:#5f6d60;
+  --accent:#2f6b3a; --accent-soft:#e3efe2; --on-accent:#fff;
+  --low:#b86e00; --low-soft:#fbefd9; --out:#b3261e; --out-soft:#f8e1df;
+  --t1:#dfe9d6; --t2:#f1e2cf; --t3:#f3d9d3; --t4:#e6e0cf; --t5:#d9e4e8;
+  --display:"Do Hyeon","Noto Sans KR",system-ui,sans-serif;
+  --body:"Noto Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#121712; --surface:#1b221b; --line:#2c372c; --fg:#e7eee5; --muted:#9eae9d;
+  --accent:#7fc48a; --accent-soft:#213325; --on-accent:#0f1a10;
+  --low:#f0b45a; --low-soft:#3a2d17; --out:#f08a80; --out-soft:#3d1f1c;
+  --t1:#26331f; --t2:#3a2e20; --t3:#3b2523; --t4:#33301f; --t5:#1f2c31; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1000px;margin:0 auto;padding:20px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+h1{font-family:var(--display);font-weight:400;font-size:2.2rem;line-height:1.1;margin:0;color:var(--accent)}
+.sub{margin:4px 0 0;color:var(--muted)}
+.info{display:flex;flex-direction:column;gap:2px;font-size:.88rem;color:var(--muted);text-align:right}
+.info b{color:var(--fg);font-weight:500} .info a{color:var(--accent);font-weight:500}
+.today{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-wrap:wrap;gap:6px 22px;align-items:center}
+.today .date{font-family:var(--display);font-size:1.25rem}
+.today .stat{font-size:.9rem;color:var(--muted)} .today strong{color:var(--fg);font-variant-numeric:tabular-nums}
+.notice{font-size:.85rem;background:var(--low-soft);color:var(--fg);border-radius:10px;padding:8px 12px;margin:0}
+.bar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.tabs{display:flex;gap:8px;overflow-x:auto;min-width:0;padding-bottom:2px}
+.tab{flex:none;font:inherit;font-size:.92rem;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:7px 14px;cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.view{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+.view button{font:inherit;font-size:.88rem;border:none;background:transparent;color:var(--fg);border-radius:8px;padding:6px 12px;cursor:pointer}
+.view button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:700}
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pill{font-size:.8rem;font-weight:500;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.pill.ok{background:var(--accent-soft);color:var(--accent)} .pill.low{background:var(--low-soft);color:var(--low)} .pill.out{background:var(--out-soft);color:var(--out)}
+/* 한눈에 보기 */
+.list{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.lcat{margin:0;padding:10px 16px 6px;font-size:.85rem;color:var(--muted);font-weight:700;background:var(--bg);border-top:1px solid var(--line)}
+.lcat:first-child{border-top:none}
+.lrow{display:grid;grid-template-columns:1fr auto auto;gap:4px 14px;align-items:center;padding:10px 16px;border-top:1px solid var(--line)}
+.lcat + .lrow{border-top:none}
+.lrow.out{opacity:.55}
+.lname{font-weight:700;min-width:0;overflow-wrap:anywhere} .lname small{display:block;font-weight:400;color:var(--muted);font-size:.8rem}
+.lprice{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+/* 사진으로 보기 */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.card.out{opacity:.6}
+.ph{aspect-ratio:4/3;max-width:100%;position:relative;display:grid;place-items:center;overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph .ini{font-family:var(--display);font-size:2.6rem;color:var(--fg);opacity:.55;text-align:center;padding:0 12px;line-height:1.15}
+.ph .pill{position:absolute;left:10px;top:10px}
+.ph .soldout{position:absolute;inset:0;display:grid;place-items:center;background:color-mix(in srgb,var(--bg) 55%,transparent);font-family:var(--display);font-size:1.8rem;color:var(--out)}
+.cbody{padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:2px 10px}
+.cname{font-weight:700;font-size:1.05rem;margin:0;overflow-wrap:anywhere}
+.cprice{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cmeta{grid-column:1/-1;color:var(--muted);font-size:.84rem}
+.empty{color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:24px;text-align:center}
+footer{font-size:.82rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:520px){.info{text-align:left} h1{font-size:1.9rem}}
+@media (prefers-reduced-motion:no-preference){.card,.lrow{transition:opacity .2s}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><p class="empty">오늘의 반찬을 불러오는 중이에요…</p></div>
+<script>
+/* ▼ Apps Script 웹앱 주소를 여기에 넣으세요. 비워 두면 예시 데이터가 보입니다. */
+const API_URL = "";
+
+const SAMPLE = {"shop":{"name":"엄마손 반찬","tagline":"매일 아침 직접 무치고 볶는 동네 반찬가게","hours":"오전 9시 ~ 오후 8시 · 일요일 휴무","phone":"010-0000-0000","chat":""},"updatedAt":"","items":[
+{"cat":"나물","name":"시금치나물","unit":"200g 한 팩","price":4000,"left":8,"made":"오늘 아침","photo":""},
+{"cat":"나물","name":"콩나물무침","unit":"250g 한 팩","price":3000,"left":2,"made":"오늘 아침","photo":""},
+{"cat":"나물","name":"고사리볶음","unit":"200g 한 팩","price":5000,"left":6,"made":"오늘 아침","photo":""},
+{"cat":"볶음·조림","name":"멸치볶음","unit":"150g 한 팩","price":6000,"left":10,"made":"어제 저녁","photo":""},
+{"cat":"볶음·조림","name":"장조림 (메추리알)","unit":"300g 한 팩","price":8000,"left":0,"made":"어제 저녁","photo":""},
+{"cat":"볶음·조림","name":"어묵볶음","unit":"250g 한 팩","price":4000,"left":5,"made":"오늘 아침","photo":""},
+{"cat":"볶음·조림","name":"감자조림","unit":"300g 한 팩","price":4000,"left":3,"made":"오늘 아침","photo":""},
+{"cat":"김치","name":"배추김치","unit":"1kg","price":12000,"left":7,"made":"3일 숙성","photo":""},
+{"cat":"김치","name":"깍두기","unit":"500g","price":7000,"left":1,"made":"2일 숙성","photo":""},
+{"cat":"김치","name":"오이소박이","unit":"6개입","price":8000,"left":4,"made":"오늘 아침","photo":""},
+{"cat":"국·찌개","name":"된장찌개 (2인분)","unit":"재료 포장","price":7000,"left":4,"made":"오늘 아침","photo":""},
+{"cat":"국·찌개","name":"소고기미역국","unit":"1L","price":9000,"left":0,"made":"오늘 아침","photo":""}]};
+
+const LOW = 3;
+const app = document.getElementById("app");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const won = n => (Number(n)||0).toLocaleString("ko-KR") + "원";
+const status = n => n <= 0 ? ["out","품절"] : n <= LOW ? ["low", n + "개 남음"] : ["ok","넉넉해요"];
+const safeUrl = u => /^https:\/\/[^\s"'<>]+$/.test(u||"") ? u : "";
+const safeFile = f => /^[\w가-힣 .()-]+\.(jpe?g|png|webp)$/i.test(f||"") ? f : "";
+let data = null, sample = false, err = "", cur = "전체";
+let view = "list";
+try { view = localStorage.getItem("banchanView") || "list"; } catch (e) {}
+
+function stamp(iso){ if(!iso) return ""; const d=new Date(iso); if(isNaN(d)) return ""; const h=d.getHours(); return `${h<12?"오전":"오후"} ${h%12||12}:${String(d.getMinutes()).padStart(2,"0")} 기준`; }
+function tint(cat){ let h=0; for(const c of cat) h=(h*31+c.charCodeAt(0))>>>0; return `var(--t${h%5+1})`; }
+
+function render(){
+  if(!data) return;
+  const s = data.shop||{}, items = data.items||[];
+  const cats = ["전체", ...new Set(items.map(i=>i.cat||"기타"))];
+  if(!cats.includes(cur)) cur = "전체";
+  const shown = items.filter(i => cur==="전체" || (i.cat||"기타")===cur)
+    .map((it,k)=>({...it,k})).sort((a,b)=>((a.left<=0)-(b.left<=0)) || a.k-b.k);
+  const on = items.filter(i=>i.left>0).length, low = items.filter(i=>i.left>0&&i.left<=LOW).length;
+  const d = new Date(), chat = safeUrl(s.chat);
+  let body;
+  if(!shown.length) body = `<p class="empty">아직 오늘 반찬이 올라오지 않았어요. 조금 뒤에 다시 봐 주세요.</p>`;
+  else if(view==="photo") body = `<main class="grid">${shown.map(it=>{
+      const [cls,label]=status(it.left), f=safeFile(it.photo);
+      return `<article class="card ${cls==="out"?"out":""}">
+        <div class="ph" style="background:${tint(it.cat||"기타")}">
+          ${f?`<img src="photos/${encodeURIComponent(f)}" alt="${esc(it.name)}" loading="lazy" onerror="this.remove()">`:""}
+          ${f?"":`<span class="ini">${esc(it.name.replace(/\s*\(.*\)/,""))}</span>`}
+          ${cls==="out"?`<span class="soldout">품절</span>`:`<span class="pill ${cls}">${label}</span>`}
+        </div>
+        <div class="cbody"><h2 class="cname">${esc(it.name)}</h2><span class="cprice">${won(it.price)}</span>
+        <span class="cmeta">${esc([it.unit,it.made].filter(Boolean).join(" · "))}</span></div></article>`;}).join("")}</main>`;
+  else { let last=null; body = `<main class="list">${shown.map(it=>{
+      const [cls,label]=status(it.left); const head = it.cat!==last && cur==="전체" ? `<p class="lcat">${esc(it.cat||"기타")}</p>` : ""; last=it.cat;
+      return head + `<div class="lrow ${cls==="out"?"out":""}"><span class="lname">${esc(it.name)}<small>${esc([it.unit,it.made].filter(Boolean).join(" · "))}</small></span>
+        <span class="lprice">${won(it.price)}</span><span class="pill ${cls}">${label}</span></div>`;}).join("")}</main>`; }
+
+  app.innerHTML = `
+    <header><div><h1>${esc(s.name||"반찬가게")}</h1>${s.tagline?`<p class="sub">${esc(s.tagline)}</p>`:""}</div>
+      <div class="info">${s.hours?`<span>영업 <b>${esc(s.hours)}</b></span>`:""}${s.phone?`<span>전화 주문 <b>${esc(s.phone)}</b></span>`:""}
+      ${chat?`<span><a href="${esc(chat)}" target="_blank" rel="noopener">카카오톡 오픈채팅 들어가기</a></span>`:""}</div></header>
+    ${sample?`<p class="notice">${err?esc(err)+" ":""}지금은 예시 메뉴를 보여주고 있어요.</p>`:""}
+    <section class="today" aria-label="오늘 현황">
+      <span class="date">${d.getMonth()+1}월 ${d.getDate()}일 (${"일월화수목금토"[d.getDay()]}) 오늘의 반찬</span>
+      <span class="stat">판매 중 <strong>${on}</strong>가지</span><span class="stat">얼마 안 남음 <strong>${low}</strong>가지</span>
+      <span class="stat">품절 <strong>${items.length-on}</strong>가지</span>${data.updatedAt?`<span class="stat">${stamp(data.updatedAt)}</span>`:""}
+    </section>
+    <div class="bar">
+      <nav class="tabs" aria-label="반찬 분류">${cats.map(c=>`<button class="tab" type="button" data-c="${esc(c)}" aria-pressed="${c===cur}">${esc(c)}</button>`).join("")}</nav>
+      <div class="view" role="group" aria-label="보기 방식">
+        <button type="button" data-v="list" aria-pressed="${view==="list"}">한눈에 보기</button>
+        <button type="button" data-v="photo" aria-pressed="${view==="photo"}">사진으로 보기</button></div>
+    </div>
+    ${body}
+    <footer>남은 수량은 가게에서 직접 올린 숫자예요. 많이 필요하시면 전화로 확인해 주세요. 이 화면은 1분마다 새로 고쳐져요.</footer>`;
+}
+
+app.addEventListener("click", e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  if(b.dataset.c!==undefined){ cur=b.dataset.c; render(); }
+  if(b.dataset.v){ view=b.dataset.v; try{localStorage.setItem("banchanView",view);}catch(e){} render(); }
+});
+
+async function load(){
+  if(!API_URL){ data=SAMPLE; sample=true; render(); return; }
+  try{
+    const r = await fetch(API_URL, {cache:"no-store"});
+    if(!r.ok) throw new Error();
+    const j = await r.json();
+    data = {shop:j.shop||{}, updatedAt:j.updatedAt||"", items:(j.items||[]).map(i=>({...i,left:Math.max(0,Number(i.left)||0)}))};
+    sample=false; err="";
+  }catch(e){
+    if(!data || sample){ data=SAMPLE; sample=true; err="메뉴를 불러오지 못했어요."; }
+  }
+  render();
+}
+load(); setInterval(load, 60000);
+</script>
+</body>
+</html>

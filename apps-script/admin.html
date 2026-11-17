@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<style>
+  :root { --bg:#f6f8f4; --surface:#fff; --line:#dde4d8; --fg:#1e2a1f; --muted:#5f6d60; --accent:#2f6b3a; --soft:#e3efe2; --low:#b86e00; --out:#b3261e; --outsoft:#f8e1df; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font-family:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif; font-size:17px; line-height:1.5; }
+  .wrap { max-width:640px; margin:0 auto; padding:16px 16px 120px; display:flex; flex-direction:column; gap:14px; }
+  h1 { font-size:1.5rem; margin:0; color:var(--accent); }
+  .muted { color:var(--muted); font-size:.9rem; margin:0; }
+  .pin { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:12px; }
+  .pin input { font:inherit; font-size:1.6rem; letter-spacing:.3em; text-align:center; padding:12px; border:1px solid var(--line); border-radius:10px; }
+  .big { font:inherit; font-size:1.1rem; font-weight:700; border:none; border-radius:12px; padding:14px; background:var(--accent); color:#fff; cursor:pointer; }
+  .big:disabled { opacity:.45; }
+  .seg { display:flex; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:4px; gap:4px; }
+  .seg button { flex:1; font:inherit; font-size:.95rem; border:none; border-radius:9px; padding:10px; background:transparent; color:var(--fg); cursor:pointer; }
+  .seg button[aria-pressed="true"] { background:var(--accent); color:#fff; font-weight:700; }
+  .cat { font-weight:700; margin:8px 0 0; color:var(--muted); font-size:.95rem; }
+  .item { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
+  .item.off { opacity:.55; }
+  .top { display:flex; align-items:center; gap:12px; }
+  .name { flex:1; font-weight:700; font-size:1.1rem; min-width:0; }
+  .sw { font:inherit; font-size:.9rem; font-weight:700; border-radius:999px; padding:8px 14px; border:2px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; white-space:nowrap; }
+  .sw.on { border-color:var(--accent); background:var(--soft); color:var(--accent); }
+  .ctrl { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .q { font:inherit; font-size:1.5rem; width:52px; height:52px; border-radius:12px; border:1px solid var(--line); background:var(--bg); cursor:pointer; color:var(--fg); }
+  .num { min-width:3em; text-align:center; font-size:1.5rem; font-weight:700; font-variant-numeric:tabular-nums; }
+  .num.zero { color:var(--out); }
+  .soldout { font:inherit; font-size:.9rem; color:var(--out); background:var(--outsoft); border:none; border-radius:10px; padding:0 12px; height:52px; cursor:pointer; }
+  .price { margin-left:auto; font:inherit; font-size:.95rem; border:1px dashed var(--line); background:transparent; border-radius:10px; padding:8px 10px; color:var(--muted); cursor:pointer; font-variant-numeric:tabular-nums; }
+  .price.changed, .item.changed .name::after { color:var(--low); }
+  .item.changed .name::after { content:" · 고침"; font-size:.8rem; font-weight:500; }
+  .priceedit { display:flex; gap:8px; align-items:center; }
+  .priceedit input { font:inherit; font-size:1.2rem; width:8em; padding:8px; border:1px solid var(--line); border-radius:10px; }
+  .bar { position:fixed; left:0; right:0; bottom:0; background:var(--bg); border-top:1px solid var(--line); padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)); }
+  .bar .in { max-width:640px; margin:0 auto; display:flex; flex-direction:column; gap:6px; }
+  .msg { font-size:.9rem; color:var(--muted); text-align:center; }
+  .msg.err { color:var(--out); } .msg.warn { color:var(--low); }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div>
+    <h1 id="title">반찬 입력판</h1>
+    <p class="muted" id="sub">오늘 파는 반찬을 고르고 남은 수량만 맞춰 주세요.</p>
+  </div>
+
+  <section class="pin" id="pinBox">
+    <label for="pin">비밀번호 4자리</label>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8">
+    <button class="big" id="enter" type="button">들어가기</button>
+    <p class="muted" id="pinMsg"></p>
+  </section>
+
+  <section id="main" hidden>
+    <div class="seg" role="group" aria-label="보기">
+      <button type="button" data-f="on" aria-pressed="true">오늘 파는 것</button>
+      <button type="button" data-f="all" aria-pressed="false">전체 반찬에서 고르기</button>
+    </div>
+    <div id="list"></div>
+  </section>
+</div>
+
+<div class="bar" id="bar" hidden>
+  <div class="in">
+    <span class="msg" id="msg">바뀐 내용 없음</span>
+    <button class="big" id="save" type="button" disabled>손님 화면에 올리기</button>
+  </div>
+</div>
+
+<script>
+  let PIN = '', items = [], orig = {}, filter = 'on', saving = false;
+  const $ = id => document.getElementById(id);
+  const won = n => (Number(n) || 0).toLocaleString('ko-KR') + '원';
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  try { PIN = localStorage.getItem('banchanPin') || ''; } catch (e) {}
+  if (PIN) load();
+
+  $('enter').onclick = () => { PIN = $('pin').value.trim(); load(); };
+  $('pin').addEventListener('keydown', e => { if (e.key === 'Enter') $('enter').click(); });
+
+  function load() {
+    $('pinMsg').textContent = '확인 중…';
+    google.script.run
+      .withSuccessHandler(res => {
+        try { localStorage.setItem('banchanPin', PIN); } catch (e) {}
+        items = res.items; orig = {};
+        items.forEach(it => orig[it.row] = JSON.stringify([it.on, it.left, it.price]));
+        if (res.shopName) $('title').textContent = res.shopName + ' 입력판';
+        $('pinBox').hidden = true; $('main').hidden = false; $('bar').hidden = false;
+        render(); status();
+      })
+      .withFailureHandler(err => {
+        try { localStorage.removeItem('banchanPin'); } catch (e) {}
+        $('pinBox').hidden = false; $('main').hidden = true; $('bar').hidden = true;
+        $('pinMsg').textContent = err.message || '들어가지 못했어요.';
+      })
+      .adminLoad(PIN);
+  }
+
+  const changed = it => orig[it.row] !== JSON.stringify([it.on, it.left, it.price]);
+
+  function render() {
+    const shown = items.filter(it => filter === 'all' || it.on);
+    let html = '', lastCat = null;
+    if (!shown.length) html = '<p class="muted">오늘 파는 반찬이 아직 없어요. 위에서 "전체 반찬에서 고르기"를 눌러 골라 주세요.</p>';
+    shown.forEach(it => {
+      if (it.cat !== lastCat) { html += `<p class="cat">${esc(it.cat)}</p>`; lastCat = it.cat; }
+      html += `<div class="item ${it.on ? '' : 'off'} ${changed(it) ? 'changed' : ''}" data-row="${it.row}">
+        <div class="top"><span class="name">${esc(it.name)}</span>
+          <button class="sw ${it.on ? 'on' : ''}" type="button" data-a="toggle">${it.on ? '오늘 판매 ✓' : '오늘 안 팜'}</button></div>
+        ${it.on ? `<div class="ctrl">
+          <button class="q" type="button" data-a="minus" aria-label="하나 빼기">－</button>
+          <span class="num ${it.left ? '' : 'zero'}">${it.left ? it.left + '개' : '품절'}</span>
+          <button class="q" type="button" data-a="plus" aria-label="하나 더하기">＋</button>
+          <button class="soldout" type="button" data-a="zero">품절</button>
+          <button class="price" type="button" data-a="price">${won(it.price)} ✎</button>
+        </div>` : ''}
+      </div>`;
+    });
+    $('list').innerHTML = html;
+  }
+
+  function status(text, kind) {
+    const n = items.filter(changed).length;
+    $('save').disabled = saving || n === 0;
+    $('save').textContent = saving ? '올리는 중…' : '손님 화면에 올리기';
+    $('msg').className = 'msg ' + (kind || (n ? 'warn' : ''));
+    $('msg').textContent = text || (n ? `${n}가지 고침 · 아직 손님 화면에 안 올라갔어요` : '바뀐 내용 없음');
+  }
+
+  document.querySelector('.seg').onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    filter = b.dataset.f;
+    document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    render();
+  };
+
+  $('list').onclick = e => {
+    const b = e.target.closest('button[data-a]'); if (!b) return;
+    const box = b.closest('.item'), it = items.find(x => x.row === +box.dataset.row);
+    const a = b.dataset.a;
+    if (a === 'toggle') { it.on = !it.on; if (it.on && !it.left) it.left = 1; }
+    if (a === 'plus') it.left++;
+    if (a === 'minus') it.left = Math.max(0, it.left - 1);
+    if (a === 'zero') it.left = 0;
+    if (a === 'price') {
+      const ctrl = b.parentElement;
+      ctrl.innerHTML = `<div class="priceedit"><input type="number" inputmode="numeric" step="500" min="0" value="${it.price}" aria-label="가격"><span>원</span>
+        <button class="soldout" type="button" data-a="priceok" style="color:var(--accent);background:var(--soft)">확인</button></div>`;
+      ctrl.querySelector('input').focus(); ctrl.querySelector('input').select();
+      return;
+    }
+    if (a === 'priceok') it.price = Math.max(0, Math.round(Number(box.querySelector('input').value) || 0));
+    render(); status();
+  };
+
+  $('save').onclick = () => {
+    const changes = items.filter(changed).map(it => ({ row: it.row, on: it.on, left: it.left, price: it.price }));
+    if (!changes.length) return;
+    saving = true; status('올리는 중이에요…');
+    google.script.run
+      .withSuccessHandler(() => {
+        saving = false;
+        items.forEach(it => orig[it.row] = JSON.stringify([it.on, it.left, it.price]));
+        render(); status('올렸어요! 손님 화면에 바로 보여요.');
+      })
+      .withFailureHandler(err => { saving = false; status((err && err.message) || '올리지 못했어요. 인터넷을 확인하고 다시 눌러 주세요.', 'err'); })
+      .adminSave(PIN, changes);
+  };
+</script>
+</body>
+</html>
