@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>마니반찬 톡방 이미지</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=Noto+Sans+KR:wght@400;500;700;900&family=Jua&family=Gowun+Dodum&family=Black+Han+Sans&display=swap">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #ddd; font-family: "Noto Sans KR", "Malgun Gothic", sans-serif; }
+  .art { display: none; position: relative; overflow: hidden; }
+  .art:target { display: flex; }
+  body.all .art { display: flex; margin: 20px; }
+  .sq { width: 1080px; height: 1080px; }
+  .tall { width: 1080px; height: 1350px; }
+  ul { list-style: none; }
+
+  /* ===== A. 정갈한 ===== */
+  .A { --bg:#f6f7f3; --ink:#1b211c; --muted:#5d665e; --green:#2f5d3a; --line:#cfd6cc; background: var(--bg); color: var(--ink); }
+  .A.sq { flex-direction: column; align-items: center; justify-content: center; gap: 34px; }
+  .A .frame { position: absolute; inset: 56px; border: 2px solid var(--line); }
+  .A .frame::after { content:""; position:absolute; inset: 14px; border: 1px solid var(--line); }
+  .A .name { font-family: "Nanum Myeongjo", serif; font-weight: 800; font-size: 210px; letter-spacing: .02em; line-height: 1; }
+  .A .en { font-size: 30px; letter-spacing: .5em; color: var(--green); font-weight: 500; padding-left: .5em; }
+  .A .tag { font-size: 36px; color: var(--muted); letter-spacing: .08em; }
+  .A .seal { width: 128px; height: 128px; }
+  .A.tall { flex-direction: column; padding: 110px 104px; gap: 48px; }
+  .A .hd { display: flex; flex-direction: column; gap: 18px; border-bottom: 2px solid var(--ink); padding-bottom: 40px; }
+  .A .hd small { font-size: 30px; letter-spacing: .35em; color: var(--green); font-weight: 500; }
+  .A .hd h1 { font-family: "Nanum Myeongjo", serif; font-weight: 800; font-size: 84px; line-height: 1.18; }
+  .A .row { display: grid; grid-template-columns: 170px 1fr; gap: 10px 24px; font-size: 38px; }
+  .A .row dt { color: var(--green); font-weight: 700; }
+  .A .sec h2 { font-family: "Nanum Myeongjo", serif; font-size: 46px; margin-bottom: 18px; }
+  .A .sec li { font-size: 35px; line-height: 1.5; padding: 12px 0; border-top: 1px solid var(--line); color: var(--ink); }
+  .A .sec li b { color: var(--green); }
+  .A .ft { margin-top: auto; font-size: 30px; color: var(--muted); letter-spacing: .1em; }
+
+  /* ===== B. 따뜻한 집밥 ===== */
+  .B { --bg:#ffe7a3; --brown:#5a3a22; --tomato:#dc5a35; --cream:#fff8e6; --soft:#f6d27a; background: var(--bg); color: var(--brown); font-family: "Gowun Dodum", "Noto Sans KR", sans-serif; }
+  .B.sq { flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+  .B .disc { position: absolute; width: 860px; height: 860px; border-radius: 50%; background: var(--cream); left: 110px; top: 110px; }
+  .B .bowl { width: 380px; height: 300px; position: relative; }
+  .B .name { font-family: "Jua", sans-serif; font-size: 200px; line-height: 1; position: relative; color: var(--brown); }
+  .B .tag { font-size: 44px; position: relative; color: var(--tomato); font-family: "Jua", sans-serif; }
+  .B.tall { flex-direction: column; padding: 90px 80px; gap: 36px; }
+  .B .hd { display: flex; align-items: center; gap: 28px; }
+  .B .hd svg { width: 170px; height: 134px; flex: none; }
+  .B .hd h1 { font-family: "Jua", sans-serif; font-size: 82px; line-height: 1.12; font-weight: 400; }
+  .B .bubble { background: var(--cream); border-radius: 44px; padding: 40px 48px; display: flex; flex-direction: column; gap: 16px; }
+  .B .bubble h2 { font-family: "Jua", sans-serif; font-weight: 400; font-size: 50px; color: var(--tomato); }
+  .B .bubble li { font-size: 37px; line-height: 1.45; padding-left: 46px; position: relative; }
+  .B .bubble li::before { content: ""; position: absolute; left: 4px; top: .45em; width: 24px; height: 24px; border-radius: 50%; background: var(--soft); }
+  .B .info { display: flex; gap: 20px; }
+  .B .info div { flex: 1; background: var(--brown); color: var(--cream); border-radius: 32px; padding: 26px 32px; font-size: 34px; line-height: 1.35; }
+  .B .info b { display: block; font-family: "Jua", sans-serif; font-weight: 400; font-size: 30px; color: var(--soft); }
+
+  /* ===== C. 시장 친근 ===== */
+  .C { --red:#d7262e; --yellow:#ffd23f; --ink:#141414; --paper:#ffffff; background: var(--paper); color: var(--ink); }
+  .C .awning { position: absolute; left: 0; right: 0; top: 0; height: 150px; background: repeating-linear-gradient(90deg, var(--red) 0 90px, var(--paper) 90px 180px); }
+  .C .awning::after { content:""; position:absolute; left:0; right:0; bottom:-44px; height:44px; background: radial-gradient(circle at 45px 0, var(--red) 44px, transparent 45px) 0 0/180px 44px repeat-x, radial-gradient(circle at 135px 0, #e9e9e9 44px, transparent 45px) 0 0/180px 44px repeat-x; }
+  .C.sq { align-items: center; justify-content: center; padding-top: 120px; }
+  .C .stamp { width: 700px; height: 700px; border-radius: 50%; background: var(--red); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; box-shadow: 0 0 0 22px var(--paper), 0 0 0 40px var(--yellow); transform: rotate(-4deg); }
+  .C .stamp .name { font-family: "Black Han Sans", sans-serif; font-size: 190px; color: var(--paper); line-height: 1; }
+  .C .stamp .tag { font-family: "Black Han Sans", sans-serif; background: var(--yellow); color: var(--ink); font-size: 50px; padding: 8px 34px; border-radius: 12px; }
+  .C .stamp .sub { color: var(--paper); font-size: 36px; font-weight: 700; }
+  .C.tall { flex-direction: column; padding: 230px 80px 80px; gap: 34px; }
+  .C .hd h1 { font-family: "Black Han Sans", sans-serif; font-weight: 400; font-size: 96px; line-height: 1.1; }
+  .C .hd h1 em { font-style: normal; color: var(--red); }
+  .C .tags { display: flex; gap: 18px; flex-wrap: wrap; }
+  .C .tags span { background: var(--yellow); font-size: 36px; font-weight: 900; padding: 14px 28px; border-radius: 14px; }
+  .C .board { border: 6px solid var(--ink); border-radius: 22px; padding: 30px 40px; display: flex; flex-direction: column; gap: 12px; }
+  .C .board h2 { font-family: "Black Han Sans", sans-serif; font-weight: 400; font-size: 52px; color: var(--red); }
+  .C .board li { font-size: 37px; line-height: 1.45; font-weight: 500; }
+  .C .board li::before { content: "▶ "; color: var(--red); font-size: .7em; vertical-align: .15em; }
+  .C .board.dark { background: var(--ink); color: var(--paper); }
+  .C .board.dark h2 { color: var(--yellow); }
+  .C .board.dark li::before { color: var(--yellow); }
+</style>
+</head>
+<body>
+
+<!-- 공통 아이콘 -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="bowl" viewBox="0 0 160 126">
+      <path d="M52 34c-10-10 10-16 0-28M80 32c-10-10 10-16 0-28M108 34c-10-10 10-16 0-28" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+      <path d="M8 56h144c0 34-32 58-72 58S8 90 8 56z" fill="currentColor"/>
+      <rect x="54" y="112" width="52" height="10" rx="5" fill="currentColor"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- A 정갈한: 대표 이미지 -->
+<section class="art A sq" id="A-profile">
+  <div class="frame"></div>
+  <svg class="seal" style="color:var(--green)"><use href="#bowl"/></svg>
+  <div class="name">마니반찬</div>
+  <div class="en">MANI BANCHAN</div>
+  <div class="tag">매일 아침 새로 만드는 반찬</div>
+</section>
+
+<!-- A 정갈한: 공지 -->
+<section class="art A tall" id="A-notice">
+  <div class="hd"><small>NOTICE · 단골방 안내</small><h1>마니반찬 단골방에<br>오신 걸 환영합니다</h1></div>
+  <dl class="row"><dt>영업시간</dt><dd>오전 9시 ~ 오후 8시 · 일요일 휴무</dd><dt>전화</dt><dd>010-0000-0000</dd></dl>
+  <div class="sec"><h2>이렇게 이용하세요</h2><ul>
+    <li>매일 아침 <b>오늘 나온 반찬</b>을 올려 드립니다</li>
+    <li>예약은 톡으로 <b>반찬 이름 · 개수 · 찾으러 올 시간</b></li>
+    <li>남은 반찬은 <b>공지의 메뉴판 링크</b>에서 확인하세요</li>
+    <li>먹고 싶은 반찬, 바라는 점은 언제든 말씀해 주세요</li>
+  </ul></div>
+  <div class="sec"><h2>함께 지켜 주세요</h2><ul>
+    <li>광고·홍보 글은 안내 없이 내보냅니다</li>
+    <li>다른 분께 개인 메시지는 삼가 주세요</li>
+  </ul></div>
+  <p class="ft">마니반찬 드림</p>
+</section>
+
+<!-- B 따뜻한 집밥: 대표 이미지 -->
+<section class="art B sq" id="B-profile">
+  <div class="disc"></div>
+  <svg class="bowl" style="color:var(--tomato)"><use href="#bowl"/></svg>
+  <div class="name">마니반찬</div>
+  <div class="tag">오늘도 집밥 한 상</div>
+</section>
+
+<!-- B 따뜻한 집밥: 공지 -->
+<section class="art B tall" id="B-notice">
+  <div class="hd"><svg style="color:var(--tomato)"><use href="#bowl"/></svg><h1>마니반찬 단골방에<br>어서 오세요!</h1></div>
+  <div class="info"><div><b>영업시간</b>저녁 8시까지<br>일요일은 쉬어요</div><div><b>주문·예약</b>이 톡방에<br>편하게 남겨 주세요</div></div>
+  <div class="bubble"><h2>이렇게 이용해요</h2><ul>
+    <li>아침마다 오늘 만든 반찬을 올려 드려요</li>
+    <li>예약은 톡으로 “반찬 이름, 개수, 찾으러 올 시간”</li>
+    <li>남은 반찬은 공지의 메뉴판 링크에서 볼 수 있어요</li>
+    <li>먹고 싶은 반찬 있으면 편하게 말씀해 주세요</li>
+  </ul></div>
+  <div class="bubble"><h2>같이 지켜요</h2><ul>
+    <li>광고·홍보 글은 말없이 내보낼게요</li>
+    <li>다른 분께 개인 메시지는 보내지 말아 주세요</li>
+  </ul></div>
+</section>
+
+<!-- C 시장 친근: 대표 이미지 -->
+<section class="art C sq" id="C-profile">
+  <div class="awning"></div>
+  <div class="stamp">
+    <span class="tag">오늘 만든 반찬</span>
+    <span class="name">마니반찬</span>
+    <span class="sub">단골 환영!</span>
+  </div>
+</section>
+
+<!-- C 시장 친근: 공지 -->
+<section class="art C tall" id="C-notice">
+  <div class="awning"></div>
+  <div class="hd"><h1><em>마니반찬</em> 단골방<br>입장 환영합니다!</h1></div>
+  <div class="tags"><span>⏰ 오전 9시 ~ 오후 8시</span><span>일요일 휴무</span><span>☎ 010-0000-0000</span></div>
+  <div class="board"><h2>이용 방법</h2><ul>
+    <li>매일 아침 오늘 반찬 바로 공개!</li>
+    <li>예약: 반찬 이름 + 개수 + 찾으러 올 시간</li>
+    <li>남은 반찬은 공지 메뉴판 링크에서 확인</li>
+    <li>먹고 싶은 반찬 신청 받아요</li>
+  </ul></div>
+  <div class="board dark"><h2>약속해 주세요</h2><ul>
+    <li>광고·홍보 글은 바로 내보내요</li>
+    <li>다른 분께 개인 메시지 금지</li>
+  </ul></div>
+</section>
+
+<script>if (!location.hash) document.body.classList.add("all");</script>
+</body>
+</html>
