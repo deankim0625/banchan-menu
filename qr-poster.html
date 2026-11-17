@@ -3,40 +3,55 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>반찬가게 QR 안내판</title>
+<title>반찬가게 단골톡방 QR</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;700&display=swap">
 <style>
   @page { size: A4 portrait; margin: 0; }
-  :root { --accent:#2f6b3a; --fg:#1e2a1f; --muted:#5f6d60; --soft:#e3efe2; }
+  :root { --accent:#2f6b3a; --fg:#1e2a1f; --muted:#5f6d60; --soft:#e3efe2; --kakao:#fee500; --kakao-fg:#191600; }
   * { box-sizing: border-box; }
   body { margin: 0; background: #e9ece6; font-family: "Noto Sans KR", "Malgun Gothic", sans-serif; color: var(--fg); }
   .tip { max-width: 210mm; margin: 16px auto; padding: 0 16px; font-size: 14px; color: var(--muted); }
-  .page { width: 210mm; height: 297mm; margin: 0 auto 24px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10mm; padding: 18mm; text-align: center; }
+  .tip.warn { color: #b3261e; font-weight: 700; }
+  .page { width: 210mm; height: 297mm; margin: 0 auto 24px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8mm; padding: 16mm 18mm; text-align: center; }
   .eyebrow { font-size: 18pt; color: var(--muted); margin: 0; }
-  h1 { font-family: "Do Hyeon", "Noto Sans KR", sans-serif; font-weight: 400; font-size: 54pt; line-height: 1.1; margin: 0; color: var(--accent); }
-  .lead { font-size: 22pt; font-weight: 700; margin: 0; }
-  #qr { padding: 8mm; border: 3mm solid var(--accent); border-radius: 8mm; background: #fff; }
-  #qr img, #qr canvas { display: block; width: 120mm !important; height: 120mm !important; image-rendering: pixelated; }
-  .steps { font-size: 16pt; background: var(--soft); border-radius: 6mm; padding: 5mm 9mm; margin: 0; }
-  .url { font-size: 10pt; color: var(--muted); word-break: break-all; margin: 0; }
+  h1 { font-family: "Do Hyeon", "Noto Sans KR", sans-serif; font-weight: 400; font-size: 50pt; line-height: 1.12; margin: 0; color: var(--accent); }
+  .badge { display: inline-flex; align-items: center; gap: 3mm; background: var(--kakao); color: var(--kakao-fg); font-weight: 700; font-size: 18pt; border-radius: 999px; padding: 3mm 9mm; margin: 0; }
+  #qr { padding: 7mm; border: 3mm solid var(--kakao); border-radius: 8mm; background: #fff; min-width: 120mm; min-height: 120mm; display: grid; place-items: center; }
+  #qr img, #qr canvas { display: block; width: 110mm !important; height: 110mm !important; image-rendering: pixelated; }
+  #qr .none { font-size: 14pt; color: var(--muted); max-width: 90mm; }
+  ul { list-style: none; margin: 0; padding: 5mm 9mm; background: var(--soft); border-radius: 6mm; text-align: left; font-size: 15pt; display: flex; flex-direction: column; gap: 2mm; }
+  li::before { content: "✓ "; color: var(--accent); font-weight: 700; }
+  .small { font-size: 11pt; color: var(--muted); margin: 0; }
   @media print { body { background: #fff; } .tip { display: none; } .page { margin: 0; } }
 </style>
 </head>
 <body>
-<p class="tip">이 화면을 크롬에서 열고 <b>Ctrl + P</b>를 눌러 A4로 인쇄하세요. (인쇄 설정에서 '배경 그래픽'을 켜면 색이 함께 나옵니다)</p>
+<p class="tip">크롬에서 열고 <b>Ctrl + P</b> → A4로 인쇄하세요. 인쇄 설정에서 '배경 그래픽'을 켜면 색이 함께 나옵니다.</p>
+<p class="tip warn" id="warn" hidden>아직 오픈채팅 주소가 없어요. 이 파일의 OPEN_CHAT_URL에 주소를 넣어야 QR이 나옵니다.</p>
 <div class="page">
   <p class="eyebrow">엄마손 반찬</p>
-  <h1>오늘 반찬,<br>뭐 남았을까?</h1>
-  <p class="lead">휴대폰 카메라로 찍어 보세요</p>
+  <h1>단골 톡방에<br>놀러 오세요</h1>
+  <p class="badge">카카오톡 오픈채팅 · 가입 없이 바로</p>
   <div id="qr"></div>
-  <p class="steps">메뉴 · 가격 · 남은 수량을 바로 확인할 수 있어요</p>
-  <p class="url" id="url"></p>
+  <ul>
+    <li>오늘 나온 반찬 소식을 매일 받아요</li>
+    <li>집에서도 남은 반찬을 확인할 수 있어요</li>
+    <li>먹고 싶은 반찬, 바라는 점을 편하게 말해 주세요</li>
+  </ul>
+  <p class="small">휴대폰 카메라로 QR을 찍으면 톡방이 열려요. 이름은 별명으로 들어오셔도 돼요.</p>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-  const URL_ = "https://deankim0625.github.io/banchan-menu/";
-  document.getElementById("url").textContent = URL_;
-  new QRCode(document.getElementById("qr"), { text: URL_, width: 600, height: 600, colorDark: "#1e2a1f", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
+  /* ▼ 카카오톡 오픈채팅방 주소 (예: https://open.kakao.com/o/xxxxxxx) */
+  const OPEN_CHAT_URL = "";
+
+  const box = document.getElementById("qr");
+  if (/^https:\/\/open\.kakao\.com\/\S+$/.test(OPEN_CHAT_URL)) {
+    new QRCode(box, { text: OPEN_CHAT_URL, width: 600, height: 600, colorDark: "#191600", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
+  } else {
+    box.innerHTML = '<p class="none">오픈채팅 주소를 넣으면 여기에 QR이 나와요</p>';
+    document.getElementById("warn").hidden = false;
+  }
 </script>
 </body>
 </html>
