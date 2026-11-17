@@ -3,55 +3,52 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>반찬가게 단골톡방 QR</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;700&display=swap">
+<title>마니반찬 단골톡방 QR</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
 <style>
+  /* 따뜻한 집밥 스타일 (톡방 대표·공지 이미지와 같은 색) */
   @page { size: A4 portrait; margin: 0; }
-  :root { --accent:#2f6b3a; --fg:#1e2a1f; --muted:#5f6d60; --soft:#e3efe2; --kakao:#fee500; --kakao-fg:#191600; }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: #e9ece6; font-family: "Noto Sans KR", "Malgun Gothic", sans-serif; color: var(--fg); }
-  .tip { max-width: 210mm; margin: 16px auto; padding: 0 16px; font-size: 14px; color: var(--muted); }
-  .tip.warn { color: #b3261e; font-weight: 700; }
-  .page { width: 210mm; height: 297mm; margin: 0 auto 24px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8mm; padding: 16mm 18mm; text-align: center; }
-  .eyebrow { font-size: 18pt; color: var(--muted); margin: 0; }
-  h1 { font-family: "Do Hyeon", "Noto Sans KR", sans-serif; font-weight: 400; font-size: 50pt; line-height: 1.12; margin: 0; color: var(--accent); }
-  .badge { display: inline-flex; align-items: center; gap: 3mm; background: var(--kakao); color: var(--kakao-fg); font-weight: 700; font-size: 18pt; border-radius: 999px; padding: 3mm 9mm; margin: 0; }
-  #qr { padding: 7mm; border: 3mm solid var(--kakao); border-radius: 8mm; background: #fff; min-width: 120mm; min-height: 120mm; display: grid; place-items: center; }
-  #qr img, #qr canvas { display: block; width: 110mm !important; height: 110mm !important; image-rendering: pixelated; }
-  #qr .none { font-size: 14pt; color: var(--muted); max-width: 90mm; }
-  ul { list-style: none; margin: 0; padding: 5mm 9mm; background: var(--soft); border-radius: 6mm; text-align: left; font-size: 15pt; display: flex; flex-direction: column; gap: 2mm; }
-  li::before { content: "✓ "; color: var(--accent); font-weight: 700; }
-  .small { font-size: 11pt; color: var(--muted); margin: 0; }
-  @media print { body { background: #fff; } .tip { display: none; } .page { margin: 0; } }
+  :root { --bg:#ffe7a3; --brown:#5a3a22; --tomato:#dc5a35; --cream:#fff8e6; --soft:#f6d27a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Gowun Dodum", "Malgun Gothic", sans-serif; color: var(--brown); }
+  .page { width: 210mm; height: 297mm; margin: 0 auto; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 18mm 16mm 14mm; gap: 7mm; text-align: center; position: relative; overflow: hidden; }
+  .brand { display: flex; align-items: center; gap: 4mm; }
+  .brand svg { width: 22mm; height: 17mm; color: var(--tomato); }
+  .brand span { font-family: "Jua", sans-serif; font-size: 30pt; }
+  h1 { font-family: "Jua", sans-serif; font-weight: 400; font-size: 52pt; line-height: 1.12; }
+  h1 em { font-style: normal; color: var(--tomato); }
+  .card { background: var(--cream); border-radius: 12mm; padding: 9mm 9mm 7mm; display: flex; flex-direction: column; align-items: center; gap: 4mm; }
+  .card img { width: 108mm; height: 108mm; display: block; border-radius: 4mm; background: #fff; }
+  .scan { font-family: "Jua", sans-serif; font-size: 20pt; color: var(--tomato); }
+  ul { list-style: none; display: flex; flex-direction: column; gap: 3mm; text-align: left; font-size: 17pt; line-height: 1.35; }
+  li { padding-left: 9mm; position: relative; }
+  li::before { content: ""; position: absolute; left: 0; top: .32em; width: 5mm; height: 5mm; border-radius: 50%; background: var(--soft); }
+  .foot { margin-top: auto; display: flex; gap: 4mm; font-size: 14pt; }
+  .foot div { background: var(--brown); color: var(--cream); border-radius: 6mm; padding: 3mm 7mm; }
+  .foot b { font-family: "Jua", sans-serif; font-weight: 400; color: var(--soft); margin-right: 2mm; }
 </style>
 </head>
 <body>
-<p class="tip">크롬에서 열고 <b>Ctrl + P</b> → A4로 인쇄하세요. 인쇄 설정에서 '배경 그래픽'을 켜면 색이 함께 나옵니다.</p>
-<p class="tip warn" id="warn" hidden>아직 오픈채팅 주소가 없어요. 이 파일의 OPEN_CHAT_URL에 주소를 넣어야 QR이 나옵니다.</p>
 <div class="page">
-  <p class="eyebrow">마니반찬</p>
-  <h1>단골 톡방에<br>놀러 오세요</h1>
-  <p class="badge">카카오톡 오픈채팅 · 가입 없이 바로</p>
-  <div id="qr"></div>
+  <div class="brand">
+    <svg viewBox="0 0 160 126"><path d="M52 34c-10-10 10-16 0-28M80 32c-10-10 10-16 0-28M108 34c-10-10 10-16 0-28" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M8 56h144c0 34-32 58-72 58S8 90 8 56z" fill="currentColor"/><rect x="54" y="112" width="52" height="10" rx="5" fill="currentColor"/></svg>
+    <span>마니반찬</span>
+  </div>
+  <h1>오늘 반찬 소식,<br><em>단골 톡방</em>에서 받아요</h1>
+  <div class="card">
+    <img src="images/kakao-openchat-qr.png" alt="마니반찬 단골방 카카오톡 오픈채팅 QR">
+    <p class="scan">카메라로 찍으면 바로 들어와요</p>
+  </div>
   <ul>
-    <li>오늘 나온 반찬 소식을 매일 받아요</li>
-    <li>집에서도 남은 반찬을 확인할 수 있어요</li>
-    <li>먹고 싶은 반찬, 바라는 점을 편하게 말해 주세요</li>
+    <li>아침마다 오늘 만든 반찬을 올려 드려요</li>
+    <li>톡으로 미리 예약하고 찾아가세요</li>
+    <li>먹고 싶은 반찬, 편하게 말씀해 주세요</li>
   </ul>
-  <p class="small">휴대폰 카메라로 QR을 찍으면 톡방이 열려요. 이름은 별명으로 들어오셔도 돼요.</p>
+  <div class="foot">
+    <div><b>영업</b>오전 8시 ~ 저녁 8시 · 일요일 휴무</div>
+    <div><b>전화</b>010-4110-7115</div>
+  </div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
-  /* ▼ 카카오톡 오픈채팅방 주소 (예: https://open.kakao.com/o/xxxxxxx) */
-  const OPEN_CHAT_URL = "https://open.kakao.com/o/gthmawXi";
-
-  const box = document.getElementById("qr");
-  if (/^https:\/\/open\.kakao\.com\/\S+$/.test(OPEN_CHAT_URL)) {
-    new QRCode(box, { text: OPEN_CHAT_URL, width: 600, height: 600, colorDark: "#191600", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
-  } else {
-    box.innerHTML = '<p class="none">오픈채팅 주소를 넣으면 여기에 QR이 나와요</p>';
-    document.getElementById("warn").hidden = false;
-  }
-</script>
 </body>
 </html>
