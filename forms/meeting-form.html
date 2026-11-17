@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>마니반찬 엄마랑 정할 것</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+  @page { size: A4 portrait; margin: 14mm 14mm 12mm; }
+  @page wide { size: A4 landscape; margin: 11mm 12mm 10mm; }
+  :root { --brown:#5a3a22; --tomato:#dc5a35; --soft:#fde9b0; --cream:#fff8e6; --line:#b9a48a; --muted:#7a6552; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Noto Sans KR", "Malgun Gothic", sans-serif; color: var(--brown); font-size: 10.5pt; line-height: 1.45; }
+  .sheet { break-after: page; display: flex; flex-direction: column; gap: 5mm; }
+  .sheet:last-child { break-after: auto; }
+  .wide { page: wide; }
+  header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.2mm solid var(--tomato); padding-bottom: 2.5mm; }
+  h1 { font-family: "Jua", sans-serif; font-weight: 400; font-size: 22pt; line-height: 1.1; }
+  header .meta { font-size: 9.5pt; color: var(--muted); text-align: right; }
+  h2 { font-family: "Jua", sans-serif; font-weight: 400; font-size: 14pt; color: var(--tomato); margin-bottom: 2mm; }
+  .note { font-size: 9pt; color: var(--muted); }
+  .blk { break-inside: avoid; }
+  .q { display: grid; grid-template-columns: 52mm 1fr; border-top: .3mm solid var(--line); }
+  .q:last-child { border-bottom: .3mm solid var(--line); }
+  .q > div { padding: 2.2mm 2mm; min-height: 10mm; }
+  .q .k { font-weight: 700; background: var(--cream); }
+  .q .k small { display: block; font-weight: 400; font-size: 8.5pt; color: var(--muted); }
+  .opt { color: var(--muted); font-size: 9.5pt; }
+  .opt span { margin-right: 4mm; white-space: nowrap; }
+  .opt span::before { content: "□ "; color: var(--brown); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  th, td { border: .3mm solid var(--line); padding: 1.2mm 1.8mm; vertical-align: middle; }
+  th { background: var(--soft); font-weight: 700; font-size: 9.5pt; text-align: center; }
+  td { height: 8.6mm; font-size: 10pt; }
+  tr.ex td { color: var(--muted); font-style: italic; background: var(--cream); }
+  td.c { text-align: center; }
+  .box { border: .3mm solid var(--line); border-radius: 3mm; padding: 3mm 4mm; background: var(--cream); }
+  .box ul { list-style: none; display: flex; flex-direction: column; gap: 1.2mm; }
+  .box li::before { content: "● "; color: var(--tomato); font-size: 7pt; vertical-align: .15em; }
+  .lines div { border-bottom: .3mm dashed var(--line); height: 8mm; }
+</style>
+</head>
+<body>
+
+<!-- 1쪽: 정할 것 -->
+<section class="sheet">
+  <header>
+    <h1>마니반찬 · 엄마랑 정할 것</h1>
+    <div class="meta">날짜 ____년 __월 __일<br>같이 본 사람 ______________</div>
+  </header>
+
+  <div class="blk">
+    <h2>1. 가게 기본 정보</h2>
+    <div class="q"><div class="k">문 여는 시간<small>지금은 오전 8시로 올려둠</small></div><div class="opt">오전 ____시 ____분 &nbsp;~&nbsp; 저녁 8시</div></div>
+    <div class="q"><div class="k">쉬는 날<small>지금은 일요일</small></div><div class="opt"><span>일요일만</span><span>명절 연휴</span><span>기타 ______________</span></div></div>
+    <div class="q"><div class="k">손님께 알릴 전화번호</div><div class="opt"><span>엄마 휴대폰 (010-4110-7115)</span><span>가게 번호 새로 만들기</span></div></div>
+    <div class="q"><div class="k">가게 이름<small>지금은 마니반찬</small></div><div class="opt"><span>그대로</span><span>바꾸고 싶음 → 후보: ________________________</span></div></div>
+  </div>
+
+  <div class="blk">
+    <h2>2. 매일 운영 방식</h2>
+    <div class="q"><div class="k">입력판에 반찬 올리는 시간</div><div class="opt">매일 ____시쯤 &nbsp; / &nbsp; 수량 바꾸는 때: <span>팔릴 때마다</span><span>점심·저녁 두 번</span></div></div>
+    <div class="q"><div class="k">톡방에 오늘 반찬 올리는 사람</div><div class="opt"><span>엄마</span><span>나</span><span>둘 다</span> &nbsp; 올리는 시간 ____시</div></div>
+    <div class="q"><div class="k">예약 받는 방법</div><div class="opt"><span>톡방</span><span>전화</span><span>둘 다</span> &nbsp; 예약 마감 ____시 / 안 찾아가면 ____시까지 보관</div></div>
+    <div class="q"><div class="k">"얼마 안 남음" 표시 기준<small>지금은 3개 이하</small></div><div class="opt">____개 이하일 때</div></div>
+    <div class="q"><div class="k">입력판 비밀번호<small>지금 1234 → 꼭 바꾸기</small></div><div class="opt">새 비밀번호는 엄마만 알게 시트에 직접 입력</div></div>
+  </div>
+
+  <div class="blk two">
+    <div>
+      <h2>3. 입간판</h2>
+      <div class="q"><div class="k">종류</div><div class="opt"><span>A형 양면</span><span>X배너</span><span>칠판형</span></div></div>
+      <div class="q"><div class="k">뒷면</div><div class="opt"><span>칠판(매일 손글씨)</span><span>고정 메뉴판</span></div></div>
+      <div class="q"><div class="k">놓을 자리·크기</div><div class="opt">________ × ________ cm</div></div>
+    </div>
+    <div>
+      <h2>4. 나중에 해볼 것</h2>
+      <div class="q"><div class="k">배달</div><div class="opt"><span>해보고 싶음</span><span>아직</span></div></div>
+      <div class="q"><div class="k">정기배송·구독</div><div class="opt"><span>주 ___회</span><span>아직</span></div></div>
+      <div class="q"><div class="k">명절·행사 예약</div><div class="opt"><span>받기</span><span>안 받기</span></div></div>
+    </div>
+  </div>
+
+  <div class="blk">
+    <h2>5. 엄마가 하고 싶은 말 · 걱정되는 것</h2>
+    <div class="lines"><div></div><div></div><div></div></div>
+  </div>
+</section>
+
+<!-- 2~3쪽: 반찬 목록 -->
+<section class="sheet wide">
+  <header>
+    <h1>반찬 목록 ① <span style="font-size:12pt;color:var(--muted)">파는 반찬을 전부 적어 주세요</span></h1>
+    <div class="meta">이 표가 그대로 엄마 입력판의 반찬 목록이 돼요<br>사진: 찍을 것 □ / 찍었음 ✓</div>
+  </header>
+  <table>
+    <colgroup><col style="width:8mm"><col style="width:26mm"><col style="width:48mm"><col style="width:32mm"><col style="width:24mm"><col style="width:34mm"><col style="width:16mm"><col></colgroup>
+    <thead><tr><th>#</th><th>분류</th><th>반찬 이름</th><th>용량·단위</th><th>가격(원)</th><th>주로 만드는 때</th><th>사진</th><th>메모 (재료·맵기·인기 등)</th></tr></thead>
+    <tbody id="t1">
+      <tr class="ex"><td class="c">예</td><td>나물</td><td>시금치나물</td><td>200g 한 팩</td><td>4,000</td><td>매일 아침</td><td class="c">□</td><td>국산 시금치, 안 매움</td></tr>
+    </tbody>
+  </table>
+  <p class="note">분류 예: 나물 · 볶음·조림 · 김치 · 국·찌개 · 전·튀김 · 밑반찬 · 계절 반찬 &nbsp;|&nbsp; 용량은 손님이 보는 단위로 (g, 팩, 개입, 인분)</p>
+</section>
+
+<section class="sheet wide">
+  <header>
+    <h1>반찬 목록 ②</h1>
+    <div class="meta">계절·명절에만 하는 반찬도 적어 두면 좋아요</div>
+  </header>
+  <table>
+    <colgroup><col style="width:8mm"><col style="width:26mm"><col style="width:48mm"><col style="width:32mm"><col style="width:24mm"><col style="width:34mm"><col style="width:16mm"><col></colgroup>
+    <thead><tr><th>#</th><th>분류</th><th>반찬 이름</th><th>용량·단위</th><th>가격(원)</th><th>주로 만드는 때</th><th>사진</th><th>메모 (재료·맵기·인기 등)</th></tr></thead>
+    <tbody id="t2"></tbody>
+  </table>
+</section>
+
+<!-- 4쪽: 사진 찍는 법 -->
+<section class="sheet">
+  <header>
+    <h1>반찬 사진 찍는 법</h1>
+    <div class="meta">휴대폰으로 충분해요 · 메뉴판 "사진으로 보기"에 들어가요</div>
+  </header>
+  <div class="box blk">
+    <h2>이렇게 찍어 주세요</h2>
+    <ul>
+      <li><b>낮에 창가 자연광</b>에서 찍기. 형광등 아래는 반찬이 누렇게 나와요</li>
+      <li><b>위에서 내려다보거나 45도</b>로. 그릇이 화면을 꽉 채우게</li>
+      <li>실제로 파는 <b>팩·용기에 담긴 모습</b> 그대로 (손님이 받는 모습과 같게)</li>
+      <li>배경은 <b>깨끗한 도마나 쟁반 한 가지</b>로 통일하면 메뉴판이 깔끔해져요</li>
+      <li>휴대폰은 <b>가로로</b> 들고, 초점은 반찬 가운데를 한 번 눌러 맞추기</li>
+      <li>필터는 쓰지 않기. 실물과 다르면 손님이 실망해요</li>
+    </ul>
+  </div>
+  <div class="box blk">
+    <h2>찍은 다음에</h2>
+    <ul>
+      <li>사진은 카톡 <b>나와의 채팅</b>이나 구글 드라이브로 보내 주세요</li>
+      <li>파일 이름은 신경 쓰지 않아도 돼요. 반찬 이름만 같이 적어 주시면 정리해서 넣어 드려요</li>
+      <li>한 번에 다 못 찍어도 괜찮아요. 사진이 없는 반찬은 이름 카드로 대신 보여요</li>
+    </ul>
+  </div>
+  <div class="blk">
+    <h2>찍을 순서 (인기 반찬부터)</h2>
+    <table>
+      <thead><tr><th style="width:12mm">순서</th><th>반찬 이름</th><th style="width:22mm">찍었음</th><th style="width:12mm">순서</th><th>반찬 이름</th><th style="width:22mm">찍었음</th></tr></thead>
+      <tbody id="t3"></tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+  const row = (n, cols) => `<tr><td class="c">${n}</td>${'<td></td>'.repeat(cols - 3)}<td class="c">□</td><td></td></tr>`;
+  let h = ""; for (let i = 1; i <= 15; i++) h += row(i, 8); document.getElementById("t1").insertAdjacentHTML("beforeend", h);
+  h = ""; for (let i = 16; i <= 32; i++) h += row(i, 8); document.getElementById("t2").innerHTML = h;
+  h = ""; for (let i = 1; i <= 8; i++) h += `<tr><td class="c">${i}</td><td></td><td class="c">□</td><td class="c">${i + 8}</td><td></td><td class="c">□</td></tr>`; document.getElementById("t3").innerHTML = h;
+</script>
+</body>
+</html>
