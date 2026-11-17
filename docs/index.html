@@ -111,7 +111,8 @@ function render(){
   const cats = ["전체", ...new Set(items.map(i=>i.cat||"기타"))];
   if(!cats.includes(cur)) cur = "전체";
   const shown = items.filter(i => cur==="전체" || (i.cat||"기타")===cur)
-    .map((it,k)=>({...it,k})).sort((a,b)=>((a.left<=0)-(b.left<=0)) || a.k-b.k);
+    .map((it,k)=>({...it,k,ci:cats.indexOf(it.cat||"기타")}))
+    .sort((a,b)=>(view==="list" ? a.ci-b.ci : 0) || ((a.left<=0)-(b.left<=0)) || a.k-b.k);
   const on = items.filter(i=>i.left>0).length, low = items.filter(i=>i.left>0&&i.left<=LOW).length;
   const d = new Date(), chat = safeUrl(s.chat);
   let body;
