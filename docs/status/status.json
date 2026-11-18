@@ -71,21 +71,23 @@
     }
   ],
   "pages": [
-    { "name": "손님 메뉴판", "who": "손님", "desc": "오늘 반찬·가격·남은 수량. 1분마다 새로 고침", "url": "https://deankim0625.github.io/banchan-menu/" },
-    { "name": "엄마 입력 페이지", "who": "엄마", "desc": "숫자만 누르면 자동 저장. 비밀번호 필요", "url": "https://script.google.com/macros/s/AKfycby13vkWEGQjW1dySnWUpKUvfoRWa7gtQDvf2wco7jG8W6mps8HmaCA4G5lO5KQkAldX/exec?page=mom" },
-    { "name": "단골 오픈톡방", "who": "손님", "desc": "오늘 반찬 소식·예약·의견", "url": "https://open.kakao.com/o/gthmawXi" },
-    { "name": "진행 현황 (이 페이지)", "who": "모두", "desc": "어디까지 했는지 한눈에", "url": "https://deankim0625.github.io/banchan-menu/status/" }
+    { "name": "손님 메뉴판", "who": "손님", "desc": "오늘 반찬·가격·남은 수량, 사진으로 보기", "url": "https://deankim0625.github.io/banchan-menu/#photo", "thumb": "thumbs/menu.jpg" },
+    { "name": "엄마 입력 페이지", "who": "엄마", "desc": "숫자만 누르면 자동 저장 (비밀번호 필요)", "url": "https://script.google.com/macros/s/AKfycby13vkWEGQjW1dySnWUpKUvfoRWa7gtQDvf2wco7jG8W6mps8HmaCA4G5lO5KQkAldX/exec?page=mom", "thumb": "thumbs/mom.jpg" },
+    { "name": "단골 오픈톡방", "who": "손님", "desc": "오늘 반찬 소식·예약·의견", "url": "https://open.kakao.com/o/gthmawXi", "thumb": "thumbs/talk.jpg", "fit": "contain" }
   ],
   "private": [
     { "name": "구글 시트 '반찬가게 입력판'", "desc": "반찬 목록·가격·비밀번호. 내 구글 계정으로만 열림" },
     { "name": "관리용 입력판", "desc": "가격까지 바꾸는 화면. 보안을 위해 주소는 여기 올리지 않음" },
     { "name": "로드맵 문서", "desc": "Claude에서 편집하는 원본 문서. 내 Claude 계정으로만 열림" }
   ],
+  "prints": [
+    { "name": "입간판 시안 (제미나이)", "desc": "가게 앞에 세웠을 때 모습. 그림 속 QR은 가짜", "url": "sign-mockup.png", "thumb": "thumbs/sign-mockup.jpg", "est": "아래 인쇄 파일 기준" },
+    { "name": "입간판 앞면 인쇄 파일 (600×900mm PDF)", "desc": "진짜 톡방 QR 포함. 재단 여백 3mm 포함 606×906mm", "url": "https://github.com/deankim0625/banchan-menu/blob/main/print/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_%EC%9E%85%EA%B0%84%ED%8C%90_%EC%95%9E%EB%A9%B4_600x900.pdf", "thumb": "thumbs/sign-print.jpg", "est": "철제 A형 양면 프레임 약 4.5~6만 원 + 시트 출력·부착 별도 / 업체 맞춤제작 약 15만 원 선" },
+    { "name": "벽면 QR 안내판 (A4)", "desc": "계산대 옆 벽에 붙이는 용도", "url": "https://github.com/deankim0625/banchan-menu/blob/main/images/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_QR%EC%95%88%EB%82%B4%ED%8C%90_A4.pdf", "thumb": "thumbs/qr.jpg", "est": "집에서 A4 컬러 인쇄 + 코팅이면 거의 무료 / A2 크게 출력 약 2만 원 + 코팅 약 1만 원" }
+  ],
   "files": [
-    { "name": "QR 안내판 (A4 PDF)", "desc": "가게에 붙일 톡방 QR", "url": "https://github.com/deankim0625/banchan-menu/blob/main/images/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_QR%EC%95%88%EB%82%B4%ED%8C%90_A4.pdf" },
-    { "name": "엄마랑 정할 것 (A4 4쪽 PDF)", "desc": "정할 것·반찬 목록 작성표·사진 찍는 법", "url": "https://github.com/deankim0625/banchan-menu/blob/main/forms/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_%EC%97%84%EB%A7%88%EB%9E%91%EC%A0%95%ED%95%A0%EA%B2%83.pdf" },
-    { "name": "톡방 대표 이미지", "desc": "따뜻한 집밥 스타일", "url": "https://github.com/deankim0625/banchan-menu/blob/main/images/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_2_%EB%94%B0%EB%9C%BB%ED%95%9C%EC%A7%91%EB%B0%A5_%EB%8C%80%ED%91%9C.png" },
-    { "name": "톡방 공지 이미지", "desc": "영업시간·이용 방법·규칙", "url": "https://github.com/deankim0625/banchan-menu/blob/main/images/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_2_%EB%94%B0%EB%9C%BB%ED%95%9C%EC%A7%91%EB%B0%A5_%EA%B3%B5%EC%A7%80.png" }
+    { "name": "톡방 공지 이미지", "desc": "영업시간·이용 방법·규칙", "url": "https://github.com/deankim0625/banchan-menu/blob/main/images/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_2_%EB%94%B0%EB%9C%BB%ED%95%9C%EC%A7%91%EB%B0%A5_%EA%B3%B5%EC%A7%80.png", "thumb": "thumbs/notice.jpg" },
+    { "name": "엄마랑 정할 것 (A4 4쪽 PDF)", "desc": "정할 것·반찬 목록 작성표·사진 찍는 법", "url": "https://github.com/deankim0625/banchan-menu/blob/main/forms/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_%EC%97%84%EB%A7%88%EB%9E%91%EC%A0%95%ED%95%A0%EA%B2%83.pdf", "thumb": "thumbs/form.jpg" }
   ],
   "decisions": [
     "문 여는 시간 확정 (지금은 오전 8시로 가정)",
@@ -95,6 +97,7 @@
     "가게 이름을 그대로 쓸지"
   ],
   "log": [
+    { "date": "2026-11-18", "text": "입간판 시안(제미나이)·입간판 앞면 인쇄 파일·예상 견적, 대시보드 순서 변경" },
     { "date": "2026-11-18", "text": "메뉴판 '사진으로 보기'에 예시 반찬 사진 12장 (AI로 만든 예시, 실제 사진으로 교체 예정)" },
     { "date": "2026-11-18", "text": "엄마 전용 입력 페이지 배포, 로드맵 문서, 엄마랑 정할 것 양식" },
     { "date": "2026-11-17", "text": "메뉴판 사이트·구글 시트·입력판 연결, 오픈톡방 개설, 톡방 이미지·QR 안내판" }

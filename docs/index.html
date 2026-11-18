@@ -102,6 +102,8 @@ const safeFile = f => /^[\w가-힣 .()-]+\.(jpe?g|png|webp)$/i.test(f||"") ? f :
 let data = null, sample = false, err = "", cur = "전체";
 let view = "list";
 try { view = localStorage.getItem("banchanView") || "list"; } catch (e) {}
+if (location.hash === "#photo") view = "photo";
+if (location.hash === "#list") view = "list";
 
 function stamp(iso){ if(!iso) return ""; const d=new Date(iso); if(isNaN(d)) return ""; const h=d.getHours(); return `${h<12?"오전":"오후"} ${h%12||12}:${String(d.getMinutes()).padStart(2,"0")} 기준`; }
 function tint(cat){ let h=0; for(const c of cat) h=(h*31+c.charCodeAt(0))>>>0; return `var(--t${h%5+1})`; }

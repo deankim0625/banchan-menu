@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>마니반찬 입간판 앞면 600x900</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+  /* A형 입간판 앞면 · 실제 크기 600 x 900 mm (재단 여백 3mm 포함 606 x 906) */
+  @page { size: 606mm 906mm; margin: 0; }
+  :root { --bg:#ffe7a3; --brown:#5a3a22; --tomato:#dc5a35; --cream:#fff8e6; --soft:#f6d27a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Gowun Dodum", "Malgun Gothic", sans-serif; color: var(--brown); }
+  .page { width: 606mm; height: 906mm; padding: 48mm 45mm 40mm; display: flex; flex-direction: column; align-items: center; gap: 22mm; text-align: center; background: var(--bg); }
+  .brand { display: flex; flex-direction: column; align-items: center; gap: 6mm; }
+  .brand svg { width: 120mm; height: 95mm; color: var(--tomato); }
+  .brand h1 { font-family: "Jua", sans-serif; font-weight: 400; font-size: 150pt; line-height: 1; }
+  .lead { font-family: "Jua", sans-serif; font-size: 66pt; line-height: 1.2; }
+  .lead em { font-style: normal; color: var(--tomato); }
+  .card { background: var(--cream); border-radius: 26mm; padding: 18mm 18mm 14mm; display: flex; flex-direction: column; align-items: center; gap: 8mm; }
+  .card img { width: 290mm; height: 290mm; display: block; border-radius: 8mm; background: #fff; }
+  .scan { font-family: "Jua", sans-serif; font-size: 50pt; color: var(--tomato); }
+  .pts { list-style: none; display: flex; flex-direction: column; gap: 6mm; text-align: left; font-size: 48pt; line-height: 1.3; }
+  .pts li { padding-left: 22mm; position: relative; }
+  .pts li::before { content: ""; position: absolute; left: 0; top: .3em; width: 13mm; height: 13mm; border-radius: 50%; background: var(--soft); }
+  .foot { margin-top: auto; background: var(--brown); color: var(--cream); border-radius: 18mm; padding: 9mm 22mm; font-size: 44pt; }
+  .foot b { font-family: "Jua", sans-serif; font-weight: 400; color: var(--soft); margin-right: 6mm; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="brand">
+    <svg viewBox="0 0 160 126"><path d="M52 34c-10-10 10-16 0-28M80 32c-10-10 10-16 0-28M108 34c-10-10 10-16 0-28" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M8 56h144c0 34-32 58-72 58S8 90 8 56z" fill="currentColor"/><rect x="54" y="112" width="52" height="10" rx="5" fill="currentColor"/></svg>
+    <h1>마니반찬</h1>
+  </div>
+  <p class="lead">오늘 반찬 소식,<br><em>단골 톡방</em>에서 받아요</p>
+  <div class="card">
+    <img src="../images/kakao-openchat-qr.png" alt="마니반찬 단골방 카카오톡 오픈채팅 QR">
+    <p class="scan">카메라로 찍으면 바로 들어와요</p>
+  </div>
+  <ul class="pts">
+    <li>아침마다 오늘 만든 반찬을 올려 드려요</li>
+    <li>톡으로 미리 예약하고 찾아가세요</li>
+  </ul>
+  <div class="foot"><b>영업</b>오전 8시 ~ 저녁 8시 · 일요일 휴무</div>
+</div>
+</body>
+</html>
