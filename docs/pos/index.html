@@ -176,7 +176,7 @@ const soldToday = () => packs.filter(p => p.st === "sold" && p.at >= today0);
 const dleft = p => Math.floor((p.exp - today0) / DAY);
 const urgent = () => packs.filter(p => p.st === "in" && dleft(p) <= 1);
 
-const TABS = [["scan","계산"],["stock","재고"],["exp","소비기한"],["label","라벨 인쇄"],["today","오늘 매출"],["week","이번 주"]];
+const TABS = [["scan","계산"],["label","라벨 인쇄"],["stock","재고"],["exp","소비기한"],["today","오늘 매출"],["week","이번 주"]];
 function renderTabs(){
   const u = urgent().length;
   $("tabs").innerHTML = TABS.map(([k, n]) => `<button role="tab" aria-selected="${k === tab}" data-t="${k}">${n}${k === "exp" && u ? `<span class="badge">${u}</span>` : ""}${k === "scan" && cart.length ? `<span class="badge">${cart.length}</span>` : ""}</button>`).join("");
