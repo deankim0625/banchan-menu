@@ -168,7 +168,7 @@ const WSTAT = Object.fromEntries(DISHES.map(d => [d.id, { sold: 12 + Math.floor(
 /* ---------- 공통 ---------- */
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-let tab = "today", cart = [], pickId = 1, qty = 8, toastT;
+let tab = "scan", cart = [], pickId = 1, qty = 8, toastT;
 function toast(msg){ const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2200); }
 function tick(){ const d = new Date(); $("clock").textContent = `${d.getMonth()+1}월 ${d.getDate()}일 (${"일월화수목금토"[d.getDay()]}) ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
 tick(); setInterval(tick, 20000);
@@ -176,7 +176,7 @@ const soldToday = () => packs.filter(p => p.st === "sold" && p.at >= today0);
 const dleft = p => Math.floor((p.exp - today0) / DAY);
 const urgent = () => packs.filter(p => p.st === "in" && dleft(p) <= 1);
 
-const TABS = [["today","오늘"],["scan","찍기"],["stock","재고"],["exp","소비기한"],["label","라벨 인쇄"],["week","이번 주"]];
+const TABS = [["scan","계산"],["stock","재고"],["exp","소비기한"],["label","라벨 인쇄"],["today","오늘 매출"],["week","이번 주"]];
 function renderTabs(){
   const u = urgent().length;
   $("tabs").innerHTML = TABS.map(([k, n]) => `<button role="tab" aria-selected="${k === tab}" data-t="${k}">${n}${k === "exp" && u ? `<span class="badge">${u}</span>` : ""}${k === "scan" && cart.length ? `<span class="badge">${cart.length}</span>` : ""}</button>`).join("");
