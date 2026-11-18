@@ -81,6 +81,11 @@
     { "name": "로드맵 문서", "desc": "Claude에서 편집하는 원본 문서. 내 Claude 계정으로만 열림" },
     { "name": "라벨·바코드 자동화 기획", "desc": "라벨 인쇄 = 재고 등록, 찍으면 판매 기록. 장비·비용·단계 계획. 내 Claude 계정으로만 열림" }
   ],
+  "labels": [
+    { "name": "계산대 배치 (추천 조합)", "desc": "거치대에 세운 갤럭시탭 + 브라더 라벨프린터 + 카드단말기. 제미나이 시안이라 기기 모양은 실제와 조금 다를 수 있음", "url": "counter.png", "thumb": "thumbs/counter.jpg", "est": "약 55~65만 원 (태블릿 A11 + QL-820NWB + 라벨 + 거치대)" },
+    { "name": "라벨 실제 디자인 (62×40mm)", "desc": "제품명·가격·제조일·소비기한·원재료·알레르기·QR. 원재료·알레르기는 예시", "url": "label-sample.png", "thumb": "thumbs/label-sample.jpg", "fit": "contain" },
+    { "name": "라벨 붙인 반찬", "desc": "실링 필름 위 오른쪽 아래에 라벨을 붙인 모습 (실제 라벨 디자인 합성)", "url": "pack-label.png", "thumb": "thumbs/pack-label.jpg" }
+  ],
   "prints": [
     { "name": "X배너 세운 모습 (실제 디자인)", "desc": "60×180cm. 진짜 인쇄 디자인을 가게 앞 사진에 합성. 가볍고 싸지만 바람에 약함", "url": "xbanner-real.png", "thumb": "thumbs/xbanner-mockup.jpg", "pdf": "https://github.com/deankim0625/banchan-menu/blob/main/print/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_X%EB%B0%B0%EB%84%88_600x1800.pdf", "est": "약 5~7만 원 (출력 2~4만 원 + 실외 거치대 약 2.5만 원)" },
     { "name": "입간판 세운 모습 (제미나이 시안)", "desc": "A형 양면 입간판. 그림 속 QR은 가짜, 실제 인쇄 파일은 옆 카드", "url": "sign-mockup.png", "thumb": "thumbs/sign-mockup.jpg", "est": "약 10~15만 원 (프레임 4.5~6만 원 + 시트 출력·부착 / 업체 맞춤제작 약 15만 원 선)" },

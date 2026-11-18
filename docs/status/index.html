@@ -136,6 +136,8 @@ function render(s, live){
 
     ${s.prints && s.prints.length ? `<section aria-label="가게 인쇄물"><h2>가게에 붙이고 세울 것</h2>${tiles(s.prints, "크게 보기")}</section>` : ""}
 
+    ${s.labels && s.labels.length ? `<section aria-label="라벨 자동화"><h2>라벨 자동화 미리보기</h2>${tiles(s.labels, "크게 보기")}</section>` : ""}
+
     <section aria-label="파일"><h2>만든 파일</h2>${tiles(s.files, "보기")}</section>
 
     <div class="divider"><h2>작업 현황</h2></div>
