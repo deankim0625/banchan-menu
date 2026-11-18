@@ -11,6 +11,11 @@ const COL = { on: 0, cat: 1, name: 2, unit: 3, price: 4, left: 5, made: 6, photo
 
 function doGet(e) {
   const p = (e && e.parameter) || {};
+  if (p.page === 'mom') {
+    return HtmlService.createHtmlOutputFromFile('mom')
+      .setTitle('마니반찬 오늘 반찬')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1');
+  }
   if (p.page === 'admin') {
     return HtmlService.createHtmlOutputFromFile('admin')
       .setTitle('반찬 입력판')

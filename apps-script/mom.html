@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<style>
+  :root { --bg:#fff8e6; --card:#ffffff; --brown:#5a3a22; --tomato:#dc5a35; --yellow:#ffe7a3; --line:#ead9b8; --muted:#8a6f55; --green:#2f7a3d; --greensoft:#e2f2e3; --red:#c0392b; --redsoft:#fbe3df; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--brown); font-family: "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif; font-size: 20px; line-height: 1.4; }
+  button { font: inherit; cursor: pointer; touch-action: manipulation; }
+  .top { position: sticky; top: 0; z-index: 5; background: var(--brown); color: #fff; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .top b { font-size: 24px; }
+  .pill { font-size: 16px; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.18); white-space: nowrap; }
+  .pill.ok { background: #fff; color: var(--green); }
+  .pill.err { background: var(--red); color: #fff; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 16px 16px 140px; display: flex; flex-direction: column; gap: 14px; }
+  .hello { font-size: 18px; color: var(--muted); margin: 0; }
+  #list { display: flex; flex-direction: column; gap: 14px; }
+  .card { background: var(--card); border: 3px solid var(--line); border-radius: 22px; padding: 16px 16px 12px; display: flex; flex-direction: column; gap: 12px; }
+  .card.out { border-color: var(--red); background: var(--redsoft); }
+  .card.flash { border-color: var(--green); }
+  .name { font-size: 28px; font-weight: 800; margin: 0; word-break: keep-all; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .step { width: 76px; height: 76px; border-radius: 20px; border: none; background: var(--yellow); color: var(--brown); font-size: 44px; font-weight: 800; line-height: 1; }
+  .step:active { transform: scale(.95); }
+  .num { flex: 1; text-align: center; font-size: 48px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .num small { font-size: 22px; margin-left: 2px; }
+  .card.out .num { font-size: 34px; color: var(--red); }
+  .soldout { width: 100%; height: 60px; border-radius: 16px; border: 3px solid var(--red); background: #fff; color: var(--red); font-size: 22px; font-weight: 800; }
+  .off { align-self: flex-end; border: none; background: none; color: var(--muted); font-size: 16px; text-decoration: underline; padding: 4px; }
+  .off.arm { color: var(--red); font-weight: 800; }
+  .empty { text-align: center; color: var(--muted); padding: 30px 10px; font-size: 20px; }
+  .bottom { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(transparent, var(--bg) 30%); }
+  .big { display: block; width: 100%; max-width: 528px; margin: 0 auto; height: 72px; border: none; border-radius: 20px; background: var(--tomato); color: #fff; font-size: 26px; font-weight: 800; box-shadow: 0 4px 0 rgba(0,0,0,.12); }
+  .sheet { position: fixed; inset: 0; z-index: 10; background: var(--bg); overflow-y: auto; }
+  .sheet .wrap { padding-bottom: 120px; }
+  .sheet h2 { font-size: 26px; margin: 4px 0; }
+  .cat { font-size: 18px; color: var(--muted); font-weight: 700; margin: 10px 0 0; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tile { min-height: 84px; border: 3px solid var(--line); border-radius: 18px; background: #fff; color: var(--brown); font-size: 22px; font-weight: 800; padding: 10px; word-break: keep-all; }
+  .tile:active { background: var(--yellow); }
+  .pin { background: #fff; border-radius: 22px; padding: 22px; display: flex; flex-direction: column; gap: 14px; text-align: center; }
+  .pin input { font: inherit; font-size: 40px; letter-spacing: .4em; text-align: center; padding: 12px; border: 3px solid var(--line); border-radius: 16px; width: 100%; }
+  .msg { color: var(--red); font-weight: 700; min-height: 1.4em; margin: 0; }
+  .banner { background: var(--red); color: #fff; border-radius: 16px; padding: 12px 14px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .banner button { border: none; border-radius: 12px; background: #fff; color: var(--red); font-weight: 800; padding: 8px 14px; font-size: 18px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="top"><b id="shop">마니반찬</b><span class="pill" id="pill" hidden></span></div>
+
+<div class="wrap" id="pinBox">
+  <div class="pin">
+    <p style="margin:0;font-size:24px;font-weight:800">비밀번호를 눌러 주세요</p>
+    <input id="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off">
+    <button class="big" id="enter" type="button">들어가기</button>
+    <p class="msg" id="pinMsg"></p>
+  </div>
+</div>
+
+<div class="wrap" id="main" hidden>
+  <div class="banner" id="banner" hidden><span>저장이 안 됐어요. 인터넷을 확인해 주세요.</span><button type="button" id="retry">다시</button></div>
+  <p class="hello" id="hello"></p>
+  <div id="list"></div>
+</div>
+<div class="bottom" id="bottom" hidden><button class="big" id="openAdd" type="button">＋ 반찬 꺼내기</button></div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="wrap">
+    <h2>오늘 꺼낼 반찬을 누르세요</h2>
+    <div id="tiles"></div>
+  </div>
+  <div class="bottom"><button class="big" id="closeAdd" type="button" style="background:var(--brown)">다 골랐어요</button></div>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let PIN = '', items = [], dirty = new Set(), timer = null, saving = false, retryTimer = null;
+
+  try { PIN = localStorage.getItem('maniPin') || ''; } catch (e) {}
+  if (PIN) load();
+  $('enter').onclick = () => { PIN = $('pin').value.trim(); if (PIN) load(); };
+  $('pin').addEventListener('keydown', e => { if (e.key === 'Enter') $('enter').click(); });
+
+  function load() {
+    $('pinMsg').textContent = '확인하는 중…';
+    google.script.run.withSuccessHandler(res => {
+      try { localStorage.setItem('maniPin', PIN); } catch (e) {}
+      items = res.items;
+      if (res.shopName) $('shop').textContent = res.shopName;
+      $('pinBox').hidden = true; $('main').hidden = false; $('bottom').hidden = false;
+      const d = new Date(); $('hello').textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 · 숫자를 누르면 손님 화면이 바로 바뀌어요`;
+      render(); pill('ok', '손님 화면과 같아요 ✓');
+    }).withFailureHandler(err => {
+      try { localStorage.removeItem('maniPin'); } catch (e) {}
+      $('pinBox').hidden = false; $('main').hidden = true; $('bottom').hidden = true;
+      $('pinMsg').textContent = (err && err.message) || '들어가지 못했어요.';
+    }).adminLoad(PIN);
+  }
+
+  function pill(kind, text) { const p = $('pill'); p.hidden = false; p.className = 'pill ' + (kind || ''); p.textContent = text; }
+
+  function render(flashRow) {
+    const on = items.filter(it => it.on);
+    if (!on.length) { $('list').innerHTML = '<p class="empty">오늘 꺼낸 반찬이 없어요.<br>아래 <b>＋ 반찬 꺼내기</b>를 눌러 주세요.</p>'; return; }
+    $('list').innerHTML = on.map(it => `
+      <div class="card ${it.left ? '' : 'out'} ${it.row === flashRow ? 'flash' : ''}" data-row="${it.row}" id="r${it.row}">
+        <p class="name">${esc(it.name)}</p>
+        <div class="row">
+          <button class="step" type="button" data-a="minus" aria-label="${esc(it.name)} 하나 빼기">−</button>
+          <div class="num">${it.left ? it.left + '<small>개</small>' : '다 팔림'}</div>
+          <button class="step" type="button" data-a="plus" aria-label="${esc(it.name)} 하나 더하기">＋</button>
+        </div>
+        ${it.left ? '<button class="soldout" type="button" data-a="zero">다 팔렸어요</button>' : ''}
+        <button class="off" type="button" data-a="off">오늘은 안 팔아요</button>
+      </div>`).join('');
+  }
+
+  function change(it) { dirty.add(it.row); pill('', '저장하는 중…'); clearTimeout(timer); timer = setTimeout(save, 1500); }
+
+  function save() {
+    if (saving) { clearTimeout(timer); timer = setTimeout(save, 800); return; }
+    if (!dirty.size) return;
+    const rows = [...dirty]; dirty.clear(); saving = true;
+    const changes = items.filter(it => rows.includes(it.row)).map(it => ({ row: it.row, on: it.on, left: it.left, price: it.price }));
+    google.script.run.withSuccessHandler(() => {
+      saving = false; $('banner').hidden = true; clearTimeout(retryTimer);
+      if (!dirty.size) pill('ok', '손님 화면에 반영됨 ✓');
+    }).withFailureHandler(() => {
+      saving = false; rows.forEach(r => dirty.add(r));
+      pill('err', '저장 안 됨'); $('banner').hidden = false;
+      clearTimeout(retryTimer); retryTimer = setTimeout(save, 10000);
+    }).adminSave(PIN, changes);
+  }
+  $('retry').onclick = save;
+
+  $('list').onclick = e => {
+    const b = e.target.closest('button[data-a]'); if (!b) return;
+    const it = items.find(x => x.row === +b.closest('.card').dataset.row);
+    const a = b.dataset.a;
+    if (a === 'off') {
+      if (!b.classList.contains('arm')) { b.classList.add('arm'); b.textContent = '한 번 더 누르면 빠져요'; setTimeout(() => { if (b.isConnected) { b.classList.remove('arm'); b.textContent = '오늘은 안 팔아요'; } }, 3000); return; }
+      it.on = false;
+    }
+    if (a === 'plus') it.left++;
+    if (a === 'minus') it.left = Math.max(0, it.left - 1);
+    if (a === 'zero') it.left = 0;
+    render(); change(it);
+  };
+
+  $('openAdd').onclick = () => {
+    const off = items.filter(it => !it.on);
+    let html = '', last = null;
+    if (!off.length) html = '<p class="empty">등록된 반찬을 모두 꺼냈어요.</p>';
+    else {
+      off.forEach(it => {
+        if (it.cat !== last) { html += (last !== null ? '</div>' : '') + `<p class="cat">${esc(it.cat)}</p><div class="tiles">`; last = it.cat; }
+        html += `<button class="tile" type="button" data-row="${it.row}">${esc(it.name)}</button>`;
+      });
+      html += '</div>';
+    }
+    $('tiles').innerHTML = html; $('sheet').hidden = false; $('sheet').scrollTop = 0;
+  };
+  $('tiles').onclick = e => {
+    const b = e.target.closest('.tile'); if (!b) return;
+    const it = items.find(x => x.row === +b.dataset.row);
+    it.on = true; if (!it.left) it.left = 1;
+    b.remove(); change(it);
+  };
+  $('closeAdd').onclick = () => { $('sheet').hidden = true; render(); };
+</script>
+</body>
+</html>
