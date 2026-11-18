@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>오늘의 반찬 카드</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;700&display=swap">
+<style>
+/* 오늘의 반찬 카드 만들기 · 위: 카드 미리보기, 아래: 큰 버튼 (엄마 휴대폰·태블릿용) */
+:root{ --bg:#fff8e6; --card:#fff; --ink:#4a2f1b; --muted:#8a6f55; --line:#ecdcbc; --tomato:#dc5a35; --butter:#ffe7a3; --green:#2f7a3d; color-scheme:light; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif;font-size:17px}
+.wrap{max-width:620px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px}
+h1{font-family:"Jua",sans-serif;font-weight:400;font-size:28px;margin:4px 0 0}
+p.sub{margin:0;color:var(--muted)}
+canvas{width:100%;height:auto;border-radius:18px;box-shadow:0 6px 24px rgba(90,58,34,.15);background:#fff}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{font:inherit;font-weight:800;border:none;border-radius:16px;padding:16px;cursor:pointer;font-size:18px;touch-action:manipulation}
+button:focus-visible{outline:3px solid var(--tomato);outline-offset:2px}
+.share{grid-column:1/-1;background:var(--tomato);color:#fff;font-size:21px;padding:20px}
+.save{background:var(--butter);color:var(--ink)}
+.copy{background:var(--card);color:var(--ink);border:2px solid var(--line)}
+.opts{display:flex;gap:16px;flex-wrap:wrap;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.opts label{display:flex;gap:8px;align-items:center;font-weight:700}
+.opts input{width:22px;height:22px}
+textarea{width:100%;min-height:150px;font:inherit;font-size:15px;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--card);color:var(--ink);resize:vertical}
+.msg{min-height:1.4em;color:var(--green);font-weight:700;margin:0;text-align:center}
+.note{font-size:14px;color:var(--muted);margin:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>오늘의 반찬 카드</h1>
+  <p class="sub" id="sub">엄마가 오늘 꺼낸 반찬으로 카드를 만들고 있어요…</p>
+  <canvas id="cv" width="1080" height="1350" role="img" aria-label="오늘의 반찬 카드 미리보기"></canvas>
+  <div class="opts">
+    <label for="optOut"><input type="checkbox" id="optOut">다 팔린 반찬도 보여주기</label>
+    <label for="optLeft"><input type="checkbox" id="optLeft" checked>남은 개수 적기</label>
+  </div>
+  <div class="btns">
+    <button class="share" id="share" type="button">카톡·당근으로 보내기</button>
+    <button class="save" id="save" type="button">이미지 저장</button>
+    <button class="copy" id="copy" type="button">글 복사</button>
+  </div>
+  <p class="msg" id="msg" role="status"></p>
+  <label for="text" class="note">카드와 같이 보낼 글 (고쳐도 돼요)</label>
+  <textarea id="text"></textarea>
+  <p class="note">사진이 없는 반찬은 이름 타일로 나와요. 메뉴판의 '예시 사진'은 카드에 "사진은 예시"로 표시돼요.</p>
+</div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycby13vkWEGQjW1dySnWUpKUvfoRWa7gtQDvf2wco7jG8W6mps8HmaCA4G5lO5KQkAldX/exec";
+const MENU = "deankim0625.github.io/banchan-menu";
+const C = { bg:"#ffe7a3", cream:"#fff8e6", brown:"#5a3a22", tomato:"#dc5a35", soft:"#f6d27a", muted:"#8a6f55" };
+const $ = id => document.getElementById(id);
+const cv = $("cv"), ctx = cv.getContext("2d");
+const safeFile = f => /^[\w가-힣 .()-]+\.(jpe?g|png|webp)$/i.test(f || "") ? f : "";
+let data = null, imgs = {};
+
+function rr(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function bowl(cx, cy, s, color){
+  ctx.save(); ctx.translate(cx - 80 * s, cy - 63 * s); ctx.scale(s, s);
+  ctx.strokeStyle = color; ctx.lineWidth = 7; ctx.lineCap = "round";
+  [52, 80, 108].forEach(x => { ctx.beginPath(); ctx.moveTo(x, 34); ctx.bezierCurveTo(x - 10, 24, x + 10, 18, x, 6); ctx.stroke(); });
+  ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(8, 56); ctx.lineTo(152, 56); ctx.bezierCurveTo(152, 90, 120, 114, 80, 114); ctx.bezierCurveTo(40, 114, 8, 90, 8, 56); ctx.fill();
+  rr(54, 112, 52, 10, 5); ctx.fill(); ctx.restore();
+}
+function cover(img, x, y, w, h){
+  const r = Math.max(w / img.width, h / img.height), sw = w / r, sh = h / r;
+  ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, x, y, w, h);
+}
+function fit(text, max, size, family){ let s = size; do { ctx.font = `${s}px ${family}`; s -= 2; } while (ctx.measureText(text).width > max && s > 14); }
+
+function draw(){
+  const showOut = $("optOut").checked, showLeft = $("optLeft").checked;
+  const all = (data.items || []);
+  let list = all.filter(i => showOut || Number(i.left) > 0);
+  const extra = Math.max(0, list.length - 9); list = list.slice(0, 9);
+  const d = new Date(), date = `${d.getMonth() + 1}월 ${d.getDate()}일 (${"일월화수목금토"[d.getDay()]})`;
+  ctx.fillStyle = C.bg; ctx.fillRect(0, 0, 1080, 1350);
+  // 머리
+  bowl(140, 120, .62, C.tomato);
+  ctx.fillStyle = C.brown; ctx.font = "64px Jua"; ctx.textBaseline = "alphabetic"; ctx.fillText((data.shop && data.shop.name) || "마니반찬", 210, 140);
+  ctx.font = "40px Jua"; ctx.fillStyle = C.tomato; ctx.textAlign = "right"; ctx.fillText(date, 1010, 100);
+  ctx.fillStyle = C.brown; ctx.fillText("오늘의 반찬", 1010, 148); ctx.textAlign = "left";
+  // 판
+  rr(50, 200, 980, 990, 44); ctx.fillStyle = C.cream; ctx.fill();
+  const n = list.length, cols = n <= 4 ? 2 : 3, rows = Math.max(1, Math.ceil(n / cols));
+  const gx = 80, gy = 232, gw = 920, gh = 930, gap = 24;
+  const cw = (gw - gap * (cols - 1)) / cols, ch = (gh - gap * (rows - 1)) / rows, ph = ch - 92;
+  if (!n) { ctx.fillStyle = C.muted; ctx.font = "44px Jua"; ctx.textAlign = "center"; ctx.fillText("오늘 반찬을 준비하고 있어요", 540, 700); ctx.textAlign = "left"; }
+  list.forEach((it, i) => {
+    const x = gx + (i % cols) * (cw + gap), y = gy + Math.floor(i / cols) * (ch + gap), out = !(Number(it.left) > 0);
+    ctx.save(); rr(x, y, cw, ph, 26); ctx.clip();
+    const im = imgs[it.photo];
+    if (im) cover(im, x, y, cw, ph); else { ctx.fillStyle = "#f3e2bd"; ctx.fillRect(x, y, cw, ph); ctx.fillStyle = C.brown; fit(it.name, cw - 40, 54, "Jua"); ctx.textAlign = "center"; ctx.fillText(it.name, x + cw / 2, y + ph / 2 + 18); ctx.textAlign = "left"; }
+    if (out) { ctx.fillStyle = "rgba(255,248,230,.72)"; ctx.fillRect(x, y, cw, ph); ctx.fillStyle = "#c0392b"; ctx.font = "52px Jua"; ctx.textAlign = "center"; ctx.fillText("품절", x + cw / 2, y + ph / 2 + 18); ctx.textAlign = "left"; }
+    else if (showLeft && Number(it.left) <= 3) { ctx.fillStyle = C.tomato; rr(x + 14, y + 14, 150, 50, 25); ctx.fill(); ctx.fillStyle = "#fff"; ctx.font = "30px Jua"; ctx.fillText(`${it.left}개 남음`, x + 32, y + 50); }
+    ctx.restore();
+    ctx.fillStyle = C.brown; fit(it.name, cw - 10, cols === 2 ? 44 : 36, "Jua"); ctx.fillText(it.name, x + 4, y + ph + 46);
+    ctx.fillStyle = out ? C.muted : C.tomato; ctx.font = `${cols === 2 ? 34 : 30}px Jua`; ctx.fillText(`${Number(it.price || 0).toLocaleString("ko-KR")}원`, x + 4, y + ph + 84);
+  });
+  if (extra) { ctx.fillStyle = C.muted; ctx.font = "30px 'Gowun Dodum'"; ctx.textAlign = "right"; ctx.fillText(`외 ${extra}가지 더 있어요`, 1000, 1170); ctx.textAlign = "left"; }
+  // 바닥
+  ctx.fillStyle = C.brown; rr(50, 1215, 980, 96, 30); ctx.fill();
+  ctx.fillStyle = C.soft; ctx.font = "34px Jua"; ctx.fillText("남은 수량", 90, 1275);
+  ctx.fillStyle = C.cream; ctx.font = "32px 'Gowun Dodum'"; ctx.fillText(MENU, 250, 1275);
+  ctx.textAlign = "right"; ctx.fillStyle = C.soft; ctx.font = "34px Jua"; ctx.fillText("예약은 톡방으로", 1000, 1275); ctx.textAlign = "left";
+  if (list.some(i => /^ex-/.test(i.photo || ""))) { ctx.fillStyle = C.muted; ctx.font = "22px 'Gowun Dodum'"; ctx.textAlign = "right"; ctx.fillText("사진은 예시", 1020, 1340); ctx.textAlign = "left"; }
+  // 글
+  const lines = (data.items || []).filter(i => Number(i.left) > 0).map(i => `· ${i.name} ${Number(i.price || 0).toLocaleString("ko-KR")}원${Number(i.left) <= 3 ? ` (${i.left}개 남음)` : ""}`);
+  $("text").value = `[${(data.shop && data.shop.name) || "마니반찬"}] ${date} 오늘의 반찬\n\n${lines.join("\n") || "오늘 반찬을 준비하고 있어요"}\n\n남은 수량은 여기서 확인하세요 ▶ https://${MENU}/\n예약은 톡으로 "반찬 이름, 개수, 찾으러 올 시간"을 남겨 주세요.`;
+  $("sub").textContent = `오늘 판매 중 ${all.filter(i => Number(i.left) > 0).length}가지 · 엄마 입력판 기준`;
+}
+
+function loadImg(src){ return new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; }); }
+
+async function init(){
+  try { const r = await fetch(API, {cache:"no-store"}); data = await r.json(); }
+  catch (e) { data = { shop:{name:"마니반찬"}, items:[] }; $("sub").textContent = "반찬 정보를 불러오지 못했어요. 인터넷을 확인해 주세요."; }
+  await Promise.all([document.fonts.load("64px Jua"), document.fonts.load("32px 'Gowun Dodum'")]).catch(() => {});
+  const files = [...new Set((data.items || []).map(i => safeFile(i.photo)).filter(Boolean))];
+  await Promise.all(files.map(async f => { imgs[f] = await loadImg(`../photos/${encodeURIComponent(f)}`); }));
+  draw();
+}
+
+const blob = () => new Promise(res => cv.toBlob(res, "image/jpeg", .9));
+const fname = () => { const d = new Date(); return `마니반찬_오늘의반찬_${d.getMonth() + 1}${String(d.getDate()).padStart(2, "0")}.jpg`; };
+function say(t){ $("msg").textContent = t; setTimeout(() => { if ($("msg").textContent === t) $("msg").textContent = ""; }, 3000); }
+
+$("optOut").onchange = draw; $("optLeft").onchange = draw;
+$("save").onclick = async () => { const b = await blob(), a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = fname(); document.body.appendChild(a); a.click(); a.remove(); say("사진첩(다운로드)에 저장했어요"); };
+$("copy").onclick = async () => { try { await navigator.clipboard.writeText($("text").value); say("글을 복사했어요. 톡방에 붙여 넣으세요"); } catch (e) { $("text").select(); say("글을 길게 눌러 복사해 주세요"); } };
+$("share").onclick = async () => {
+  const b = await blob(), file = new File([b], fname(), { type: "image/jpeg" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], text: $("text").value }); say("보냈어요"); } catch (e) { if (e.name !== "AbortError") say("보내지 못했어요. 이미지 저장 후 직접 올려 주세요"); }
+  } else { $("save").click(); say("이 기기에서는 바로 보내기가 안 돼요. 저장한 이미지를 올려 주세요"); }
+};
+init();
+</script>
+</body>
+</html>
