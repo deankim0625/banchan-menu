@@ -83,6 +83,7 @@
   "prints": [
     { "name": "입간판 시안 (제미나이)", "desc": "가게 앞에 세웠을 때 모습. 그림 속 QR은 가짜", "url": "sign-mockup.png", "thumb": "thumbs/sign-mockup.jpg", "est": "아래 인쇄 파일 기준" },
     { "name": "X배너 시안 (제미나이)", "desc": "60×180cm 세로 배너. 가볍고 싸지만 바람에 약함. 그림 속 QR은 가짜", "url": "xbanner-mockup.png", "thumb": "thumbs/xbanner-mockup.jpg", "est": "출력 2~4만 원 + 실외 거치대 약 2.5만 원 → 약 5~7만 원 (거치대 포함 4.4만 원 상품도 있음)" },
+    { "name": "X배너 인쇄 파일 (600×1800mm PDF)", "desc": "진짜 톡방 QR 포함. 반찬 사진 3장은 예시라 실제 사진으로 바꾼 뒤 주문", "url": "https://github.com/deankim0625/banchan-menu/blob/main/print/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_X%EB%B0%B0%EB%84%88_600x1800.pdf", "thumb": "thumbs/xbanner-print.jpg", "est": "약 5~7만 원 (출력 + 실외 거치대)" },
     { "name": "입간판 앞면 인쇄 파일 (600×900mm PDF)", "desc": "진짜 톡방 QR 포함. 재단 여백 3mm 포함 606×906mm", "url": "https://github.com/deankim0625/banchan-menu/blob/main/print/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_%EC%9E%85%EA%B0%84%ED%8C%90_%EC%95%9E%EB%A9%B4_600x900.pdf", "thumb": "thumbs/sign-print.jpg", "est": "철제 A형 양면 프레임 약 4.5~6만 원 + 시트 출력·부착 별도 / 업체 맞춤제작 약 15만 원 선" },
     { "name": "벽면 QR 안내판 (A4)", "desc": "계산대 옆 벽에 붙이는 용도", "url": "https://github.com/deankim0625/banchan-menu/blob/main/images/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_QR%EC%95%88%EB%82%B4%ED%8C%90_A4.pdf", "thumb": "thumbs/qr.jpg", "est": "집에서 A4 컬러 인쇄 + 코팅이면 거의 무료 / A2 크게 출력 약 2만 원 + 코팅 약 1만 원" }
   ],
