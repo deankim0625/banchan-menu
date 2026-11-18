@@ -86,7 +86,7 @@ function draw(){
   // 판
   rr(50, 200, 980, 990, 44); ctx.fillStyle = C.cream; ctx.fill();
   const n = list.length, cols = n <= 4 ? 2 : 3, rows = Math.max(1, Math.ceil(n / cols));
-  const gx = 80, gy = 232, gw = 920, gh = 930, gap = 24;
+  const gx = 80, gy = 232, gw = 920, gh = extra ? 880 : 930, gap = 24;
   const cw = (gw - gap * (cols - 1)) / cols, ch = (gh - gap * (rows - 1)) / rows, ph = ch - 92;
   if (!n) { ctx.fillStyle = C.muted; ctx.font = "44px Jua"; ctx.textAlign = "center"; ctx.fillText("오늘 반찬을 준비하고 있어요", 540, 700); ctx.textAlign = "left"; }
   list.forEach((it, i) => {
@@ -100,12 +100,12 @@ function draw(){
     ctx.fillStyle = C.brown; fit(it.name, cw - 10, cols === 2 ? 44 : 36, "Jua"); ctx.fillText(it.name, x + 4, y + ph + 46);
     ctx.fillStyle = out ? C.muted : C.tomato; ctx.font = `${cols === 2 ? 34 : 30}px Jua`; ctx.fillText(`${Number(it.price || 0).toLocaleString("ko-KR")}원`, x + 4, y + ph + 84);
   });
-  if (extra) { ctx.fillStyle = C.muted; ctx.font = "30px 'Gowun Dodum'"; ctx.textAlign = "right"; ctx.fillText(`외 ${extra}가지 더 있어요`, 1000, 1170); ctx.textAlign = "left"; }
+  if (extra) { ctx.fillStyle = C.muted; ctx.font = "30px 'Gowun Dodum'"; ctx.textAlign = "right"; ctx.fillText(`외 ${extra}가지 더 있어요 · 메뉴판에서 확인`, 1000, 1166); ctx.textAlign = "left"; }
   // 바닥
   ctx.fillStyle = C.brown; rr(50, 1215, 980, 96, 30); ctx.fill();
-  ctx.fillStyle = C.soft; ctx.font = "34px Jua"; ctx.fillText("남은 수량", 90, 1275);
-  ctx.fillStyle = C.cream; ctx.font = "32px 'Gowun Dodum'"; ctx.fillText(MENU, 250, 1275);
-  ctx.textAlign = "right"; ctx.fillStyle = C.soft; ctx.font = "34px Jua"; ctx.fillText("예약은 톡방으로", 1000, 1275); ctx.textAlign = "left";
+  ctx.fillStyle = C.soft; ctx.font = "32px Jua"; ctx.fillText("남은 수량", 86, 1274);
+  ctx.fillStyle = C.cream; ctx.font = "27px 'Gowun Dodum'"; ctx.fillText(MENU, 232, 1273);
+  ctx.textAlign = "right"; ctx.fillStyle = C.soft; ctx.font = "32px Jua"; ctx.fillText("예약은 톡방으로", 1000, 1274); ctx.textAlign = "left";
   if (list.some(i => /^ex-/.test(i.photo || ""))) { ctx.fillStyle = C.muted; ctx.font = "22px 'Gowun Dodum'"; ctx.textAlign = "right"; ctx.fillText("사진은 예시", 1020, 1340); ctx.textAlign = "left"; }
   // 글
   const lines = (data.items || []).filter(i => Number(i.left) > 0).map(i => `· ${i.name} ${Number(i.price || 0).toLocaleString("ko-KR")}원${Number(i.left) <= 3 ? ` (${i.left}개 남음)` : ""}`);

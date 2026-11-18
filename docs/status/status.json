@@ -73,6 +73,7 @@
   "pages": [
     { "name": "손님 메뉴판", "who": "손님", "desc": "오늘 반찬·가격·남은 수량, 사진으로 보기", "url": "https://deankim0625.github.io/banchan-menu/#photo", "thumb": "thumbs/menu.jpg" },
     { "name": "엄마 입력 페이지", "who": "엄마", "desc": "숫자만 누르면 자동 저장 (비밀번호 필요)", "url": "https://script.google.com/macros/s/AKfycby13vkWEGQjW1dySnWUpKUvfoRWa7gtQDvf2wco7jG8W6mps8HmaCA4G5lO5KQkAldX/exec?page=mom", "thumb": "thumbs/mom.jpg" },
+    { "name": "오늘의 반찬 카드", "who": "엄마", "desc": "엄마가 꺼낸 반찬으로 카드 이미지 자동 생성 → 카톡·당근으로 보내기", "url": "https://deankim0625.github.io/banchan-menu/card/", "thumb": "thumbs/card.jpg" },
     { "name": "단골 오픈톡방", "who": "손님", "desc": "오늘 반찬 소식·예약·의견", "url": "https://open.kakao.com/o/gthmawXi", "thumb": "thumbs/talk.jpg", "fit": "contain" }
   ],
   "private": [
@@ -107,6 +108,7 @@
     "라벨 자동화: 계산대에 갤럭시탭 + 라벨프린터(브라더 QL-820NWB 또는 저렴한 블루투스형) 중 고르기, 반찬별 소비기한 일수, 구청에 라벨 필수 항목 확인"
   ],
   "log": [
+    { "date": "2026-11-18", "text": "오늘의 반찬 카드 자동 생성 (엄마 입력판 데이터 → 카드 이미지·글 → 카톡·당근 공유)" },
     { "date": "2026-11-18", "text": "계산대 태블릿 앱 시안 (카드단말기만 있어 POS 대신 태블릿 앱으로)" },
     { "date": "2026-11-18", "text": "라벨·바코드 자동화 기획 (소비기한 라벨, 인쇄=재고 등록, 찍기=판매 기록)" },
     { "date": "2026-11-18", "text": "X배너 시안(제미나이)과 예상 비용 추가" },
