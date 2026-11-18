@@ -97,6 +97,7 @@
   ],
   "files": [
     { "name": "톡방 공지 이미지", "desc": "영업시간·이용 방법·규칙", "url": "https://github.com/deankim0625/banchan-menu/blob/main/images/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_2_%EB%94%B0%EB%9C%BB%ED%95%9C%EC%A7%91%EB%B0%A5_%EA%B3%B5%EC%A7%80.png", "thumb": "thumbs/notice.jpg" },
+    { "name": "네이버·카카오·당근 등록 정보 묶음", "desc": "상호·주소·영업시간·소개글·메뉴를 복사 버튼으로. 곳별 등록 순서 포함", "url": "https://deankim0625.github.io/banchan-menu/kit/", "thumb": "thumbs/talk.jpg", "fit": "contain" },
     { "name": "엄마랑 정할 것 (A4 4쪽 PDF)", "desc": "정할 것·반찬 목록 작성표·사진 찍는 법", "url": "https://github.com/deankim0625/banchan-menu/blob/main/forms/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_%EC%97%84%EB%A7%88%EB%9E%91%EC%A0%95%ED%95%A0%EA%B2%83.pdf", "thumb": "thumbs/form.jpg" }
   ],
   "decisions": [
@@ -108,6 +109,7 @@
     "라벨 자동화: 계산대에 갤럭시탭 + 라벨프린터(브라더 QL-820NWB 또는 저렴한 블루투스형) 중 고르기, 반찬별 소비기한 일수, 구청에 라벨 필수 항목 확인"
   ],
   "log": [
+    { "date": "2026-11-18", "text": "카카오맵에서 마니반찬(선학로 101) 확인, 등록 정보 묶음 페이지" },
     { "date": "2026-11-18", "text": "오늘의 반찬 카드 자동 생성 (엄마 입력판 데이터 → 카드 이미지·글 → 카톡·당근 공유)" },
     { "date": "2026-11-18", "text": "계산대 태블릿 앱 시안 (카드단말기만 있어 POS 대신 태블릿 앱으로)" },
     { "date": "2026-11-18", "text": "라벨·바코드 자동화 기획 (소비기한 라벨, 인쇄=재고 등록, 찍기=판매 기록)" },
