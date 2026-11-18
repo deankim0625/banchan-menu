@@ -61,6 +61,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-off
 .ph .ini{font-family:var(--display);font-size:2.6rem;color:var(--fg);opacity:.55;text-align:center;padding:0 12px;line-height:1.15}
 .ph .pill{position:absolute;left:10px;top:10px}
 .ph .soldout{position:absolute;inset:0;display:grid;place-items:center;background:color-mix(in srgb,var(--bg) 55%,transparent);font-family:var(--display);font-size:1.8rem;color:var(--out)}
+.ph .exmark{position:absolute;right:8px;bottom:8px;font-size:.72rem;color:#fff;background:rgba(0,0,0,.45);border-radius:6px;padding:2px 7px}
 .cbody{padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:2px 10px}
 .cname{font-weight:700;font-size:1.05rem;margin:0;overflow-wrap:anywhere}
 .cprice{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -124,6 +125,7 @@ function render(){
           ${f?`<img src="photos/${encodeURIComponent(f)}" alt="${esc(it.name)}" loading="lazy" onerror="this.remove()">`:""}
           ${f?"":`<span class="ini">${esc(it.name.replace(/\s*\(.*\)/,""))}</span>`}
           ${cls==="out"?`<span class="soldout">품절</span>`:`<span class="pill ${cls}">${label}</span>`}
+          ${f && f.startsWith("ex-")?`<span class="exmark">예시 사진</span>`:""}
         </div>
         <div class="cbody"><h2 class="cname">${esc(it.name)}</h2><span class="cprice">${won(it.price)}</span>
         <span class="cmeta">${esc([it.unit,it.made].filter(Boolean).join(" · "))}</span></div></article>`;}).join("")}</main>`;
