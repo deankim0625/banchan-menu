@@ -79,6 +79,10 @@ a.tile:hover{transform:translateY(-3px);border-color:var(--tomato);box-shadow:0 
 .divider{display:flex;align-items:center;gap:12px;margin-top:10px}
 .divider::after{content:"";flex:1;height:1px;background:var(--line)}
 .divider h2{margin:0}
+.lb{position:fixed;inset:0;z-index:50;background:rgba(20,14,8,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
+.lb img{max-width:100%;max-height:calc(100vh - 110px);border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.5);background:#fff}
+.lb p{margin:0;color:#fff;font-weight:700;text-align:center}
+.lb button{font:inherit;font-weight:700;border:none;border-radius:99px;padding:10px 22px;background:#fff;color:#4a2f1b;cursor:pointer}
 @media (max-width:760px){.tiles{grid-template-columns:1fr 1fr}}
 @media (max-width:460px){.tiles{grid-template-columns:1fr}}
 .plain{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
@@ -115,7 +119,7 @@ function ring(p){
 
 function tiles(list, btn){
   return `<div class="tiles">${list.map(p => `
-    <a class="tile" href="${safe(p.url)}" target="_blank" rel="noopener">
+    <a class="tile" href="${/^[\w.\/-]+\.(png|jpe?g)$/i.test(p.url) ? esc(p.url) : safe(p.url)}" target="_blank" rel="noopener" ${/^[\w.\/-]+\.(png|jpe?g)$/i.test(p.url) ? `data-lb="${esc(p.url)}" data-cap="${esc(p.name)}" data-pdf="${p.pdf ? safe(p.pdf) : ""}"` : ""}>
       <div class="thumb ${p.fit === "contain" ? "contain" : ""}">${p.thumb ? `<img src="${esc(p.thumb)}" alt="${esc(p.name)} 미리보기" loading="lazy">` : ""}${p.who ? `<em>${esc(p.who)}</em>` : ""}</div>
       <div class="tbody"><b>${esc(p.name)}</b><span>${esc(p.desc)}</span>${p.est ? `<span class="est">예상 비용 ${esc(p.est)}</span>` : ""}<span class="open">${btn} ↗</span></div>
     </a>`).join("")}</div>`;
@@ -164,6 +168,23 @@ function render(s, live){
 
     <section class="card" aria-label="로그인이 필요한 것"><h2>내 계정으로만 열리는 것</h2><ul class="plain">${s.private.map(p => `<li><b>${esc(p.name)}</b> <span>· ${esc(p.desc)}</span></li>`).join("")}</ul></section>`;
 }
+
+document.addEventListener("click", e => {
+  const a = e.target.closest("a[data-lb]");
+  if (a) {
+    e.preventDefault();
+    const box = document.createElement("div");
+    box.className = "lb"; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", a.dataset.cap);
+    const pdf = a.dataset.pdf && a.dataset.pdf !== "#" ? `<a href="${esc(a.dataset.pdf)}" target="_blank" rel="noopener" style="color:#ffe7a3;font-weight:700">인쇄용 PDF 열기 ↗</a>` : "";
+    box.innerHTML = `<img src="${esc(a.dataset.lb)}" alt="${esc(a.dataset.cap)}"><p>${esc(a.dataset.cap)}</p>${pdf}<button type="button">닫기</button>`;
+    document.body.appendChild(box);
+    box.querySelector("button").focus();
+    return;
+  }
+  const lb = e.target.closest(".lb");
+  if (lb && (e.target === lb || e.target.tagName === "BUTTON")) lb.remove();
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") document.querySelector(".lb")?.remove(); });
 
 async function getLive(){
   try{
