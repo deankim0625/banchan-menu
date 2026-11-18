@@ -1,0 +1,101 @@
+{
+  "updated": "2026-11-18",
+  "phases": [
+    {
+      "name": "기반 만들기",
+      "period": "11월 17일 ~ 18일",
+      "status": "done",
+      "goal": "손님 메뉴판과 엄마 입력이 실제로 이어진다",
+      "tasks": [
+        { "t": "손님 메뉴판 사이트 (한눈에 보기 / 사진으로 보기)", "done": true },
+        { "t": "구글 시트에 반찬 목록·가게 정보 저장", "done": true },
+        { "t": "엄마 전용 입력 페이지 (숫자만 누르면 자동 저장)", "done": true },
+        { "t": "카카오톡 단골 오픈톡방 개설", "done": true },
+        { "t": "톡방 대표 이미지·공지 이미지", "done": true },
+        { "t": "QR 안내판 A4 PDF", "done": true },
+        { "t": "엄마랑 정할 것 양식 (반찬 목록·사진 촬영법)", "done": true },
+        { "t": "로드맵 문서", "done": true }
+      ]
+    },
+    {
+      "name": "1단계 · 오픈 준비",
+      "period": "이번 주 ~ 2주",
+      "status": "now",
+      "goal": "메뉴판에 실제 반찬과 사진이 올라가 있고, 엄마가 혼자 수량을 바꿀 수 있다",
+      "tasks": [
+        { "t": "반찬 사진 찍기 (인기 반찬부터)", "done": false, "who": "엄마·나" },
+        { "t": "실제 반찬 목록 적어서 시트에 옮기기", "done": false, "who": "엄마·나" },
+        { "t": "엄마 입력 비밀번호 1234에서 바꾸기", "done": false, "who": "나" },
+        { "t": "엄마 휴대폰 홈 화면에 입력 페이지 추가", "done": false, "who": "나" },
+        { "t": "QR 안내판 인쇄·코팅해서 붙이기", "done": false, "who": "나" },
+        { "t": "톡방 공지에 공지 이미지 + 메뉴판 링크 고정", "done": false, "who": "나" }
+      ]
+    },
+    {
+      "name": "2단계 · 단골 모으기",
+      "period": "1~2개월",
+      "status": "next",
+      "goal": "톡방 __명, 매일 업데이트가 2주 연속",
+      "tasks": [
+        { "t": "매일 아침 '오늘의 반찬' 카드 올리기", "done": false },
+        { "t": "입간판 종류 정하고 견적 받기", "done": false },
+        { "t": "톡방 가입 혜택 정하기", "done": false },
+        { "t": "'먹고 싶은 반찬' 투표 한 달에 한 번", "done": false },
+        { "t": "톡방 인원·투표 결과 기록", "done": false }
+      ]
+    },
+    {
+      "name": "3단계 · 예약·배달 시험",
+      "period": "2~3개월",
+      "status": "next",
+      "goal": "주 __건 예약·배달, 다시 주문하는 손님이 생김",
+      "tasks": [
+        { "t": "톡 예약 규칙 (마감·보관 시간)", "done": false },
+        { "t": "예약 기록 시트 만들기", "done": false },
+        { "t": "반찬별 원가 정리하고 가격 점검", "done": false },
+        { "t": "가까운 동네 배달 시험", "done": false }
+      ]
+    },
+    {
+      "name": "4단계 · 정기배송·구독",
+      "period": "3개월 이후",
+      "status": "next",
+      "goal": "단골 10명 시범 운영 후 확대 여부 결정",
+      "tasks": [
+        { "t": "톡방 설문 (주 몇 회, 얼마까지)", "done": false },
+        { "t": "영업 신고·통신판매업 등 확인", "done": false },
+        { "t": "결제 방식 고르기", "done": false },
+        { "t": "신청 페이지 만들기", "done": false },
+        { "t": "단골 10명 한 달 시범 운영", "done": false }
+      ]
+    }
+  ],
+  "pages": [
+    { "name": "손님 메뉴판", "who": "손님", "desc": "오늘 반찬·가격·남은 수량. 1분마다 새로 고침", "url": "https://deankim0625.github.io/banchan-menu/" },
+    { "name": "엄마 입력 페이지", "who": "엄마", "desc": "숫자만 누르면 자동 저장. 비밀번호 필요", "url": "https://script.google.com/macros/s/AKfycby13vkWEGQjW1dySnWUpKUvfoRWa7gtQDvf2wco7jG8W6mps8HmaCA4G5lO5KQkAldX/exec?page=mom" },
+    { "name": "단골 오픈톡방", "who": "손님", "desc": "오늘 반찬 소식·예약·의견", "url": "https://open.kakao.com/o/gthmawXi" },
+    { "name": "진행 현황 (이 페이지)", "who": "모두", "desc": "어디까지 했는지 한눈에", "url": "https://deankim0625.github.io/banchan-menu/status/" }
+  ],
+  "private": [
+    { "name": "구글 시트 '반찬가게 입력판'", "desc": "반찬 목록·가격·비밀번호. 내 구글 계정으로만 열림" },
+    { "name": "관리용 입력판", "desc": "가격까지 바꾸는 화면. 보안을 위해 주소는 여기 올리지 않음" },
+    { "name": "로드맵 문서", "desc": "Claude에서 편집하는 원본 문서. 내 Claude 계정으로만 열림" }
+  ],
+  "files": [
+    { "name": "QR 안내판 (A4 PDF)", "desc": "가게에 붙일 톡방 QR", "url": "https://github.com/deankim0625/banchan-menu/blob/main/images/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_QR%EC%95%88%EB%82%B4%ED%8C%90_A4.pdf" },
+    { "name": "엄마랑 정할 것 (A4 4쪽 PDF)", "desc": "정할 것·반찬 목록 작성표·사진 찍는 법", "url": "https://github.com/deankim0625/banchan-menu/blob/main/forms/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_%EC%97%84%EB%A7%88%EB%9E%91%EC%A0%95%ED%95%A0%EA%B2%83.pdf" },
+    { "name": "톡방 대표 이미지", "desc": "따뜻한 집밥 스타일", "url": "https://github.com/deankim0625/banchan-menu/blob/main/images/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_2_%EB%94%B0%EB%9C%BB%ED%95%9C%EC%A7%91%EB%B0%A5_%EB%8C%80%ED%91%9C.png" },
+    { "name": "톡방 공지 이미지", "desc": "영업시간·이용 방법·규칙", "url": "https://github.com/deankim0625/banchan-menu/blob/main/images/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_2_%EB%94%B0%EB%9C%BB%ED%95%9C%EC%A7%91%EB%B0%A5_%EA%B3%B5%EC%A7%80.png" }
+  ],
+  "decisions": [
+    "문 여는 시간 확정 (지금은 오전 8시로 가정)",
+    "톡방 가입 혜택을 둘지, 둔다면 무엇으로",
+    "2단계 목표 톡방 인원",
+    "입간판 종류 (A형 양면 / X배너 / 칠판형)",
+    "가게 이름을 그대로 쓸지"
+  ],
+  "log": [
+    { "date": "2026-11-18", "text": "엄마 전용 입력 페이지 배포, 로드맵 문서, 엄마랑 정할 것 양식" },
+    { "date": "2026-11-17", "text": "메뉴판 사이트·구글 시트·입력판 연결, 오픈톡방 개설, 톡방 이미지·QR 안내판" }
+  ]
+}
