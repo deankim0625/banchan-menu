@@ -316,6 +316,8 @@ function addCode(raw){
   const s = S.sales.find(x => x.code === code);
   if (s) { beep(false); return toast(`이미 팔린 라벨이에요 (${s.t.slice(5, 16).replace("-", "/")})`, "warn"); }
   if (S.gone.some(x => x.code === code)) { beep(false); return toast("폐기로 기록한 라벨이에요", "warn"); }
+  if (DEMO && /^M\d{6}-\d{3,}$/.test(code)) { beep(false); return toast("진짜 가게 라벨이에요. 시연 모드에서는 시연용 QR을 찍어 주세요", "warn"); }
+  if (!DEMO && /^(DEMO-|D\d{6}-)/.test(code)) { beep(false); return toast("시연용 QR이에요. 진짜 라벨을 찍어 주세요", "warn"); }
   if (/^M\d{6}-\d{3,}$/.test(code) && !DEMO && !addCode.retry) {
     addCode.retry = true; toast("라벨 확인 중…");
     refresh(true).then(() => { addCode(code); addCode.retry = false; });
@@ -628,7 +630,8 @@ function mockInit(){
   const packs = [], sales = [], seq = {};
   const nowH = Math.max(11, Math.min(19, now.getHours()));
   const tstr = (day, h, m) => `${day} ${pad(h)}:${pad(m)}:${pad(Math.floor(rnd() * 60))}`;
-  const code = day => { const k = day.slice(2).replace(/-/g, ""); seq[k] = (seq[k] || 0) + 1; return `M${k}-${String(seq[k]).padStart(3, "0")}`; };
+  // 시연 데이터는 D로 시작하는 번호를 써서 진짜 라벨(M…)과 절대 겹치지 않게 함
+  const code = day => { const k = day.slice(2).replace(/-/g, ""); seq[k] = (seq[k] || 0) + 1; return `D${k}-${String(seq[k]).padStart(3, "0")}`; };
   let rn = 0; const sale = (name, price, t, c) => sales.push({ rid: "D" + (++rn), t, name, price, pay: rnd() < .8 ? "카드" : "현금", code: c || "", st: "정상" });
   items.forEach(it => {
     [3, 2, 1, 0].forEach(back => {
@@ -645,6 +648,10 @@ function mockInit(){
     });
   });
   for (let back = 4; back <= 6; back++) { const day = ymdAdd(today, -back); if (new Date(dnum(day) * 864e5).getUTCDay() === 0) continue; const n = 30 + Math.floor(rnd() * 20); for (let i = 0; i < n; i++) { const it = items[Math.floor(rnd() * items.length)]; sale(it.name, it.price, tstr(day, 9 + Math.floor(rnd() * 10), Math.floor(rnd() * 60))); } }
+  // 시연용 QR 모음(pos/demo-qr.html)의 번호: 팔아도 다시 재고로 돌아와 몇 번이고 쓸 수 있음
+  items.forEach((it, i) => packs.push({ code: `DEMO-${pad(i + 1)}`, name: it.name, unit: it.unit, price: it.price, made: today, exp: ymdAdd(today, it.days), st: "재고", at: today + " 08:00:00", sale: 0 }));
+  packs.push({ code: "DEMO-SOLD", name: "멸치볶음", unit: "150g", price: 6000, made: today, exp: ymdAdd(today, 7), st: "판매", at: today + " 08:00:00", sale: 0 });
+  sale("멸치볶음", 6000, today + " 10:12:00", "DEMO-SOLD");
   items.forEach(it => it.left = packs.filter(p => p.name === it.name && p.st === "재고").length);
   // 계산 그룹: 같은 시각대 2~3팩씩 묶기
   sales.sort((a, b) => a.t.localeCompare(b.t)); let g = 0; sales.forEach((s, i) => { if (i % (2 + (i % 2)) === 0) g++; s.rid = "D" + g; });
@@ -658,7 +665,7 @@ function mockApi(action, req){
   if (action === "label") {
     const it = M.items.find(i => i.row === req.row && i.name === req.name); if (!it) fail("반찬을 찾지 못했어요.");
     const k = today.slice(2).replace(/-/g, ""); out.printed = [];
-    for (let i = 0; i < req.qty; i++) { M.seq[k] = (M.seq[k] || 0) + 1; const p = { code: `M${k}-${String(M.seq[k]).padStart(3, "0")}`, name: it.name, unit: it.unit, price: it.price, made: today, exp: ymdAdd(today, it.days), st: "재고", at: t, sale: 0 }; M.packs.push(p); out.printed.push({ ...p, ingr: it.ingr, allergy: it.allergy }); }
+    for (let i = 0; i < req.qty; i++) { M.seq[k] = (M.seq[k] || 0) + 1; const p = { code: `D${k}-${String(M.seq[k]).padStart(3, "0")}`, name: it.name, unit: it.unit, price: it.price, made: today, exp: ymdAdd(today, it.days), st: "재고", at: t, sale: 0 }; M.packs.push(p); out.printed.push({ ...p, ingr: it.ingr, allergy: it.allergy }); }
     it.left += req.qty; it.on = true;
   } else if (action === "sell") {
     const rid = "D" + Date.now(), warn = [], sold = [];
@@ -667,11 +674,15 @@ function mockApi(action, req){
       else { const it = item(l.name); if (!it) { warn.push(l.name + " 없음"); return; } sold.push({ rid, t, name: it.name, price: it.price, pay: req.pay, code: "", st: "정상" }); }
     });
     if (!sold.length) fail(warn.join(" / "));
-    sold.forEach(s => { M.sales.push(s); const it = item(s.name); if (it) it.left = Math.max(0, it.left - 1); });
+    sold.forEach(s => {
+      M.sales.push(s);
+      if (/^DEMO-\d+$/.test(s.code)) { const p = M.packs.find(x => x.code === s.code); if (p) p.st = "재고"; return; }
+      const it = item(s.name); if (it) it.left = Math.max(0, it.left - 1);
+    });
     out.receipt = { rid, pay: req.pay, count: sold.length, sum: sold.reduce((a, s) => a + s.price, 0) }; out.warn = warn;
   } else if (action === "cancel") {
     const ss = M.sales.filter(s => s.rid === req.rid && s.st === "정상"); if (!ss.length) fail("취소할 계산을 찾지 못했어요.");
-    ss.forEach(s => { s.st = "취소"; const it = item(s.name); if (it) it.left++; const p = M.packs.find(x => x.code && x.code === s.code); if (p) p.st = "재고"; });
+    ss.forEach(s => { s.st = "취소"; const it = item(s.name); if (it && !/^DEMO-\d+$/.test(s.code)) it.left++; const p = M.packs.find(x => x.code && x.code === s.code); if (p) p.st = "재고"; });
     out.cancelled = ss.length;
   } else if (action === "discard" || action === "discount") {
     const p = M.packs.find(x => x.code === req.code && x.st === "재고"); if (!p) fail("라벨을 찾지 못했어요.");
