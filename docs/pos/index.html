@@ -226,6 +226,42 @@ function arm(key, btn, label){
   return false;
 }
 let actx;
+/* 음성 안내: 담기가 멈추고 잠시 뒤 합계를 읽어 줌, 결제하면 인사 */
+function krNum(n){
+  n = Math.floor(Math.abs(n)); if (!n) return "영";
+  const d = "영일이삼사오육칠팔구", p = ["", "십", "백", "천"], big = ["", "만", "억"], out = [];
+  for (let g = 0; n > 0; g++) {
+    const q = n % 10000; n = Math.floor(n / 10000); if (!q) continue;
+    let s = ""; const ds = String(q).padStart(4, "0");
+    for (let i = 0; i < 4; i++) { const v = +ds[i]; if (v) s += (v === 1 && i < 3 ? "" : d[v]) + p[3 - i]; }
+    out.unshift((g === 1 && q === 1 ? "" : s) + big[g]);
+  }
+  return out.join(" ");
+}
+function krCount(n){
+  if (n >= 100) return krNum(n);
+  const o = ["", "한", "두", "세", "네", "다섯", "여섯", "일곱", "여덟", "아홉"], t = ["", "열", "스물", "서른", "마흔", "쉰", "예순", "일흔", "여든", "아흔"];
+  return n === 20 ? "스무" : t[Math.floor(n / 10)] + o[n % 10];
+}
+function speak(text){
+  try {
+    const s = window.speechSynthesis; if (!s) return;
+    s.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = "ko-KR";
+    const v = s.getVoices().find(x => /^ko/i.test(x.lang)); if (v) u.voice = v;
+    s.speak(u);
+  } catch(e) {}
+}
+let saySig = "", sayT = 0;
+function sayCartLater(){
+  const sig = cart.map(c => c.code || c.name).join("|");
+  if (sig === saySig) return; saySig = sig; clearTimeout(sayT);
+  if (!cart.length) return;
+  sayT = setTimeout(() => {
+    if (!cart.length || busy) return;
+    const sum = cart.reduce((a, c) => a + c.price, 0);
+    speak(`구매하신 상품은 총 ${krCount(cart.length)} 개이고, 금액은 ${krNum(sum)} 원입니다. 감사합니다.`);
+  }, 2000);
+}
 function beep(ok = true){ try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); const o = actx.createOscillator(), g = actx.createGain(); o.frequency.value = ok ? 1320 : 330; g.gain.value = .08; o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime + (ok ? .09 : .25)); } catch(e) {} }
 
 /* ---------- 서버 ---------- */
@@ -412,6 +448,7 @@ function fillScan(){
   const list = S.items.filter(i => i.on || packsOf(i.name).length);
   $("quick").innerHTML = list.length ? list.map(i => { const n = packsOf(i.name).length; return `<button type="button" data-add="${esc(i.name)}">${esc(i.name)}<small>${won(i.price)}${n ? ` · 라벨 ${n}` : ""}</small></button>`; }).join("") : `<p class="muted" style="grid-column:1/-1;margin:0">오늘 파는 반찬이 없어요. 라벨을 인쇄하거나 엄마 입력판에서 켜 주세요.</p>`;
   const sum = cart.reduce((a, c) => a + c.price, 0);
+  sayCartLater();
   const undo = lastReceipt && Date.now() - lastReceipt.at < 15 * 60e3 && !cart.length
     ? `<div class="undo"><span>방금 ${esc(lastReceipt.pay)} ${won(lastReceipt.sum)} (${lastReceipt.count}팩) 기록됨</span><button class="btn small ghost" type="button" data-cancel="${esc(lastReceipt.rid)}" ${busy ? "disabled" : ""}>계산 취소</button></div>` : "";
   $("cartBox").innerHTML = `<h2>담은 반찬</h2>
@@ -538,8 +575,9 @@ $("view").onclick = async e => {
   if (d.act === "clear") { if (arm("clear", b, "한 번 더 누르면 비워요")) { cart = []; render(); } return; }
   if (d.pay) {
     const kind = d.pay, lines = cart.map(c => c.code ? { code: c.code } : { name: c.name });
+    clearTimeout(sayT);
     const j = await act("sell", { pay: kind, lines });
-    if (j) { lastReceipt = { ...j.receipt, at: Date.now() }; cart = []; render(); toast(`${kind} ${won(j.receipt.sum)} 기록했어요 · 재고 ${j.receipt.count}개 줄었어요` + (j.warn && j.warn.length ? ` (확인: ${j.warn.join(", ")})` : ""), j.warn && j.warn.length ? "warn" : ""); }
+    if (j) { speak("결제되었습니다. 감사합니다."); lastReceipt = { ...j.receipt, at: Date.now() }; cart = []; render(); toast(`${kind} ${won(j.receipt.sum)} 기록했어요 · 재고 ${j.receipt.count}개 줄었어요` + (j.warn && j.warn.length ? ` (확인: ${j.warn.join(", ")})` : ""), j.warn && j.warn.length ? "warn" : ""); }
     return;
   }
   if (d.cancel) {
