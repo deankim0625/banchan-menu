@@ -349,8 +349,16 @@ document.addEventListener("keydown", e => {
   if (tab !== "scan" || !S || e.target.closest("input,textarea")) return;
   const now = Date.now(); if (now - kT > 120) kbuf = ""; kT = now;
   if (e.key === "Enter") { if (kbuf.length >= 6) { addCode(kbuf); e.preventDefault(); } kbuf = ""; }
-  else if (e.key.length === 1) kbuf += e.key;
+  else if (e.key.length === 1) kbuf += keyChar(e);
 });
+/* 키보드가 한글 상태여도 리더가 보낸 영문·숫자로 읽기 (M→ㅡ 방지) */
+function keyChar(e){
+  if (/^[\x20-\x7e]$/.test(e.key)) return e.key;
+  const m = /^(?:Key([A-Z])|Digit(\d)|Numpad(\d))$/.exec(e.code || "");
+  if (m) return m[1] || m[2] || m[3];
+  if (e.code === "Minus" || e.code === "NumpadSubtract") return "-";
+  return e.key;
+}
 
 /* ---------- 라벨 ---------- */
 function qrSvg(text){
