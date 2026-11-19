@@ -3,10 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#5a3a22">
 <title>마니반찬 계산대</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
 <style>
-/* 계산대 태블릿 앱 시안 · 가로 태블릿(1280x800) 기준, 큰 터치 버튼. 상단 탭 → 화면 하나씩 */
+/* 계산대 태블릿 앱 · 가로 태블릿(1280x800) 기준, 큰 터치 버튼. 상단 탭 → 화면 하나씩
+   실제 모드: 구글 시트(앱스 스크립트)에 기록 / ?demo=1: 예시 데이터로만 동작 */
 :root{
   --bg:#fff8e6; --card:#ffffff; --ink:#4a2f1b; --muted:#8a6f55; --line:#ecdcbc;
   --tomato:#dc5a35; --tomato-soft:#fde6dc; --butter:#ffe7a3; --brown:#5a3a22;
@@ -18,11 +20,16 @@
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.45;display:flex;flex-direction:column}
 button{font:inherit;cursor:pointer;touch-action:manipulation;color:inherit}
-button:focus-visible{outline:3px solid var(--tomato);outline-offset:2px}
-.top{background:var(--brown);color:#fff;display:flex;align-items:center;gap:16px;padding:10px max(18px,env(safe-area-inset-right,0px)) 10px max(18px,env(safe-area-inset-left,0px))}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,input:focus-visible{outline:3px solid var(--tomato);outline-offset:2px}
+.top{background:var(--brown);color:#fff;display:flex;align-items:center;gap:12px;padding:10px max(18px,env(safe-area-inset-right,0px)) 10px max(18px,env(safe-area-inset-left,0px));flex-wrap:wrap}
 .top b{font-family:var(--display);font-weight:400;font-size:26px}
 .top .demo{font-size:13px;background:var(--tomato);border-radius:99px;padding:3px 10px;font-weight:700}
+.top .sync{font-size:13px;opacity:.85;display:flex;align-items:center;gap:6px}
+.top .sync i{width:9px;height:9px;border-radius:50%;background:#7bd389;display:inline-block}
+.top .sync.bad i{background:#ff8a7a}
 .top .clock{margin-left:auto;font-variant-numeric:tabular-nums;opacity:.9}
+.top .tbtn{color:#fff;background:rgba(255,255,255,.18);border:none;border-radius:10px;padding:8px 14px;font-weight:700;text-decoration:none;font-size:15px}
 nav.tabs{display:flex;gap:8px;padding:10px max(18px,env(safe-area-inset-right,0px)) 0 max(18px,env(safe-area-inset-left,0px));overflow-x:auto}
 nav.tabs button{flex:none;border:2px solid var(--line);background:var(--card);border-radius:14px 14px 0 0;border-bottom:none;padding:12px 22px;font-size:18px;font-weight:700;display:flex;gap:8px;align-items:center}
 nav.tabs button[aria-selected="true"]{background:var(--tomato);border-color:var(--tomato);color:#fff}
@@ -48,276 +55,604 @@ h2{font-family:var(--display);font-weight:400;font-size:22px;margin:0 0 10px}
 .btn.green{background:var(--green);color:#fff}
 .btn.ghost{background:transparent;border:2px solid var(--line)}
 .btn.small{padding:8px 14px;font-size:15px;border-radius:10px}
-.btn:active{transform:scale(.97)}
-/* 찍기 */
+.btn.danger{background:var(--red-soft);color:var(--red)}
+.btn.armed{background:var(--red);color:#fff}
+.btn:active:not(:disabled){transform:scale(.97)}
+.empty{color:var(--muted);text-align:center;padding:28px 10px}
+.pill{display:inline-block;font-size:13px;font-weight:700;border-radius:99px;padding:2px 10px}
+.p-red{background:var(--red-soft);color:var(--red)} .p-amber{background:var(--amber-soft);color:var(--amber)} .p-green{background:var(--green-soft);color:var(--green)} .p-gray{background:#eee;color:#777}
+/* 계산 */
 .pos{grid-template-columns:1.25fr 1fr;align-items:start}
-.scan{display:flex;flex-direction:column;gap:14px}
+.scan{display:flex;flex-direction:column;gap:14px;min-width:0}
 .cam{aspect-ratio:16/9;max-width:100%;border-radius:18px;background:#2b2017;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;position:relative;overflow:hidden}
-.cam::after{content:"";position:absolute;width:36%;aspect-ratio:1;border:4px solid rgba(255,231,163,.9);border-radius:14px}
-.cam p{margin:0;opacity:.85;position:relative;z-index:1;margin-top:auto;margin-bottom:14px}
+.cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cam video.mirror{transform:scaleX(-1)}
+.cam .frame{position:absolute;width:36%;aspect-ratio:1;border:4px solid rgba(255,231,163,.9);border-radius:14px;pointer-events:none}
+.cam .camui{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:0 16px}
+.cam .camtools{position:absolute;z-index:2;right:10px;bottom:10px;display:flex;gap:8px}
+.cam .camtools button{background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700}
+.cam .hint{position:absolute;z-index:1;left:12px;bottom:12px;background:rgba(0,0,0,.55);border-radius:10px;padding:6px 10px;font-size:14px}
+.cam.flash{box-shadow:0 0 0 6px var(--green)}
+.cam [hidden]{display:none !important}
+.cam:not(.on) .frame{display:none}
+.codein{display:flex;gap:8px}
+.codein input{flex:1;min-width:0;font:inherit;font-size:18px;padding:12px 14px;border:2px solid var(--line);border-radius:12px;background:#fff;font-family:Consolas,monospace;text-transform:uppercase}
 .quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.quick button{border:2px solid var(--line);background:var(--card);border-radius:12px;padding:10px 6px;font-weight:700;font-size:15px;word-break:keep-all}
+.quick button{border:2px solid var(--line);background:var(--card);border-radius:12px;padding:10px 6px;font-weight:700;font-size:15px;word-break:keep-all;line-height:1.25}
+.quick button small{display:block;font-weight:500;color:var(--muted);font-size:12.5px}
 .cart{display:flex;flex-direction:column;gap:12px;position:sticky;top:0}
 .lines{display:flex;flex-direction:column;max-height:330px;overflow:auto}
 .line{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
 .line:first-child{border-top:none}
 .line small{display:block;color:var(--muted);font-size:13px;font-family:Consolas,monospace}
 .line em{font-style:normal;font-weight:700;font-variant-numeric:tabular-nums}
+.line .was{text-decoration:line-through;color:var(--muted);font-weight:400;font-size:13px;margin-right:4px}
 .x{border:none;background:var(--red-soft);color:var(--red);border-radius:10px;width:40px;height:40px;font-size:20px;font-weight:800}
 .total{display:flex;justify-content:space-between;align-items:baseline;border-top:3px solid var(--ink);padding-top:12px}
 .total b{font-family:var(--display);font-weight:400;font-size:44px;font-variant-numeric:tabular-nums}
 .pay{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .pay .btn{padding:20px;font-size:21px}
-.empty{color:var(--muted);text-align:center;padding:28px 10px}
+.undo{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--green-soft);border-radius:12px;padding:10px 12px;font-size:15px}
 /* 재고 */
 .stock{grid-template-columns:repeat(4,1fr)}
 .sitem{display:flex;flex-direction:column;overflow:hidden;padding:0}
-.sitem img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;max-width:100%}
+.sitem .ph{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--butter)}
 .sitem .in{padding:12px 14px;display:flex;flex-direction:column;gap:6px}
 .sitem .n{font-family:var(--display);font-size:30px;line-height:1}
-.meter{height:10px;background:var(--line);border-radius:5px;overflow:hidden}
-.meter i{display:block;height:100%;background:var(--green)}
-.low .meter i{background:var(--amber)} .zero .meter i{background:var(--red)}
-.pill{display:inline-block;font-size:13px;font-weight:700;border-radius:99px;padding:2px 10px}
-.p-red{background:var(--red-soft);color:var(--red)} .p-amber{background:var(--amber-soft);color:var(--amber)} .p-green{background:var(--green-soft);color:var(--green)}
+.sitem.off{opacity:.55}
 /* 소비기한 */
 .exp-row{display:grid;grid-template-columns:170px 1fr 230px auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
 .exp-row:first-of-type{border-top:none}
 .exp-row small{color:var(--muted);font-family:Consolas,monospace}
 .exp-row .acts{display:flex;gap:8px}
 .group{border-left:6px solid var(--line)}
-.group.g-red{border-left-color:var(--red)} .group.g-amber{border-left-color:var(--amber)} .group.g-green{border-left-color:var(--green)}
+.group.g-red{border-left-color:var(--red)} .group.g-amber{border-left-color:var(--amber)}
 /* 라벨 */
 .lab{grid-template-columns:1fr 1fr;align-items:start}
-.pick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-height:62vh;overflow:auto;padding:2px}
 .pick button{border:3px solid var(--line);background:var(--card);border-radius:14px;padding:0;overflow:hidden;text-align:left}
-.pick button img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
-.pick button span{display:block;padding:8px 10px;font-weight:800}
+.pick button .ph{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--butter)}
+.pick button span{display:block;padding:8px 10px;font-weight:800;line-height:1.25}
+.pick button span small{display:block;font-weight:500;color:var(--muted);font-size:13px}
 .pick button[aria-pressed="true"]{border-color:var(--tomato);box-shadow:0 0 0 3px var(--tomato-soft)}
-.qty{display:flex;align-items:center;gap:14px}
+div.ph{display:flex !important;align-items:center;justify-content:center;font-family:var(--display);font-size:34px;color:var(--brown)}
+.qty{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .qty button{width:64px;height:64px;border-radius:16px;border:none;background:var(--butter);font-size:34px;font-weight:800}
 .qty b{font-family:var(--display);font-size:46px;min-width:2.2em;text-align:center;font-variant-numeric:tabular-nums}
-.labels{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.lbl{background:#fff;border:1px dashed #999;border-radius:6px;aspect-ratio:62/40;padding:10px 12px;display:grid;grid-template-columns:1fr 30%;gap:8px;font-family:var(--body);color:#000;min-width:0;align-content:start}
-.lbl .nm{font-weight:900;font-size:21px;line-height:1.15;margin:2px 0 4px}
-.lbl .sm{font-size:12.5px;line-height:1.45}
-.lbl .q{background:repeating-conic-gradient(#000 0 25%,#fff 0 50%) 0 0/6px 6px;aspect-ratio:1;border:2px solid #000}
+.qty .q5{width:auto;height:44px;padding:0 14px;font-size:16px;border-radius:12px;background:var(--card);border:2px solid var(--line)}
+.preview{display:flex;justify-content:center;background:#f3ead8;border-radius:12px;padding:16px;overflow:hidden}
+.preview .plabel{zoom:1.55;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+/* 라벨 (인쇄·미리보기 공통, mm 단위) */
+.plabel{width:62mm;height:40mm;padding:2.2mm 2.4mm 2mm;display:grid;grid-template-columns:1fr 17mm;gap:1.6mm;background:#fff;color:#000;font-family:"Noto Sans KR","Malgun Gothic",sans-serif;overflow:hidden;line-height:1.2}
+.plabel .l{display:flex;flex-direction:column;gap:.5mm;min-width:0}
+.plabel .shop{font-size:5.5pt;font-weight:700}
+.plabel .nm{font-size:12pt;font-weight:900;line-height:1.05;word-break:keep-all}
+.plabel .nm.s{font-size:10pt} .plabel .nm.xs{font-size:8.5pt}
+.plabel .pr{font-size:7.5pt;font-weight:700}
+.plabel .dt{margin-top:.4mm;border-top:.25mm solid #000;padding-top:.6mm;font-size:6pt;line-height:1.3}
+.plabel .dt b{font-size:7pt;font-weight:900}
+.plabel .sm{font-size:4.6pt;line-height:1.3;overflow:hidden}
+.plabel .r{display:flex;flex-direction:column;align-items:center;justify-content:space-between}
+.plabel .qr{width:17mm;height:17mm}
+.plabel .qr svg{width:100%;height:100%;display:block}
+.plabel .qr.ph{background:repeating-conic-gradient(#000 0 25%,#fff 0 50%) 0 0/2mm 2mm;opacity:.25}
+.plabel .cd{font-size:4.8pt;font-family:Consolas,monospace;text-align:center}
+.plabel .keep{font-size:5pt;font-weight:700;border:.25mm solid #000;border-radius:1mm;padding:.3mm .8mm;text-align:center}
+#printArea{display:none}
 /* 이번 주 */
 .week{grid-template-columns:1.3fr 1fr}
 table{width:100%;border-collapse:collapse;font-size:16px}
 th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
 th:first-child,td:first-child{text-align:left}
 th{color:var(--muted);font-weight:700;font-size:14px}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--brown);color:#fff;padding:14px 24px;border-radius:14px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:20}
-@media (max-width:900px){.kpis,.stock{grid-template-columns:repeat(2,1fr)}.two,.pos,.lab,.week{grid-template-columns:1fr}.exp-row{grid-template-columns:1fr 1fr}.quick{grid-template-columns:repeat(3,1fr)}}
+.rcpt td{vertical-align:middle}
+.rcpt td:nth-child(2){text-align:left;font-size:15px}
+.hide{display:flex;flex-direction:column;align-items:center;gap:14px;padding:60px 20px;text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--brown);color:#fff;padding:14px 24px;border-radius:14px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:20;max-width:calc(100% - 32px)}
+.toast.err{background:var(--red)} .toast.warn{background:var(--amber)}
+/* 로그인 */
+#login{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px;z-index:30}
+#login[hidden]{display:none}
+#login .card{width:min(420px,100%);display:flex;flex-direction:column;gap:14px;padding:28px}
+#login h1{font-family:var(--display);font-weight:400;font-size:32px;margin:0}
+#login input{font:inherit;font-size:28px;letter-spacing:.3em;text-align:center;padding:12px;border:2px solid var(--line);border-radius:14px}
+#login .err{color:var(--red);font-weight:700;min-height:1.4em;margin:0}
+#login a{color:var(--muted);font-size:15px;text-align:center}
+@media (max-width:900px){.kpis,.stock{grid-template-columns:repeat(2,1fr)}.two,.pos,.lab,.week{grid-template-columns:1fr}.exp-row{grid-template-columns:1fr 1fr}.quick{grid-template-columns:repeat(3,1fr)}.pick{grid-template-columns:repeat(2,1fr)}}
 @media (prefers-reduced-motion:reduce){.btn:active{transform:none}}
+@media print{
+  @page{size:62mm 40mm;margin:0}
+  html,body{height:auto;display:block;background:#fff}
+  body>*:not(#printArea){display:none !important}
+  #printArea{display:block}
+  #printArea .plabel{break-after:page;page-break-after:always}
+  #printArea .plabel:last-child{break-after:auto;page-break-after:auto}
+}
 </style>
 </head>
 <body>
-<header class="top"><b>마니반찬 계산대</b><span class="demo">시안 · 예시 데이터</span><span class="clock" id="clock"></span><a href="../card/" target="_blank" rel="noopener" style="color:#fff;background:rgba(255,255,255,.18);border-radius:10px;padding:8px 14px;font-weight:700;text-decoration:none">오늘의 반찬 카드 ↗</a></header>
+<header class="top"><b>마니반찬 계산대</b><span class="demo" id="mode" hidden></span><span class="sync" id="sync"></span><span class="clock" id="clock"></span><button class="tbtn" id="refresh" type="button">새로고침</button><a class="tbtn" href="../card/" target="_blank" rel="noopener">오늘의 반찬 카드 ↗</a></header>
 <nav class="tabs" role="tablist" id="tabs"></nav>
-<main id="view" role="tabpanel"></main>
-<div class="toast" id="toast" hidden></div>
+<main id="view" role="tabpanel"><p class="empty">불러오는 중…</p></main>
+<div class="toast" id="toast" role="status" hidden></div>
+<div id="printArea" aria-hidden="true"></div>
+<section id="login" hidden>
+  <form class="card" id="loginForm">
+    <h1>마니반찬 계산대</h1>
+    <p class="muted" style="margin:0">엄마 입력판과 같은 비밀번호를 넣어 주세요. 이 태블릿에 기억해 둬요.</p>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" aria-label="비밀번호" maxlength="12">
+    <p class="err" id="loginErr" role="alert"></p>
+    <button class="btn primary" type="submit" id="loginBtn">시작하기</button>
+    <a href="?demo=1">비밀번호 없이 시연 보기 (예시 데이터)</a>
+  </form>
+</section>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
-/* ---------- 예시 데이터 ---------- */
-const DISHES = [
-  {id:1,name:"시금치나물",cat:"나물",price:4000,unit:"200g",days:3,photo:"ex-sigeumchi.jpg"},
-  {id:2,name:"콩나물무침",cat:"나물",price:3000,unit:"250g",days:3,photo:"ex-kongnamul.jpg"},
-  {id:3,name:"고사리볶음",cat:"나물",price:5000,unit:"200g",days:4,photo:"ex-gosari.jpg"},
-  {id:4,name:"멸치볶음",cat:"볶음·조림",price:6000,unit:"150g",days:7,photo:"ex-myeolchi.jpg"},
-  {id:5,name:"장조림",cat:"볶음·조림",price:8000,unit:"300g",days:5,photo:"ex-jangjorim.jpg"},
-  {id:6,name:"어묵볶음",cat:"볶음·조림",price:4000,unit:"250g",days:3,photo:"ex-eomuk.jpg"},
-  {id:7,name:"감자조림",cat:"볶음·조림",price:4000,unit:"300g",days:3,photo:"ex-gamja.jpg"},
-  {id:8,name:"배추김치",cat:"김치",price:12000,unit:"1kg",days:14,photo:"ex-kimchi.jpg"},
-  {id:9,name:"깍두기",cat:"김치",price:7000,unit:"500g",days:10,photo:"ex-kkakdugi.jpg"},
-  {id:10,name:"오이소박이",cat:"김치",price:8000,unit:"6개입",days:4,photo:"ex-oisobagi.jpg"},
-  {id:11,name:"된장찌개 재료",cat:"국·찌개",price:7000,unit:"2인분",days:2,photo:"ex-doenjang.jpg"},
-  {id:12,name:"소고기미역국",cat:"국·찌개",price:9000,unit:"1L",days:2,photo:"ex-miyeok.jpg"}
-];
-const dish = id => DISHES.find(d => d.id === id);
-const DAY = 864e5, now = new Date(), today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
-const pad = n => String(n).padStart(2, "0");
-const md = t => { const d = new Date(t); return `${d.getMonth()+1}.${pad(d.getDate())}`; };
-const code = (t, id, n) => { const d = new Date(t); return `M-${pad(d.getMonth()+1)}${pad(d.getDate())}-${pad(id)}-${pad(n)}`; };
-const won = n => n.toLocaleString("ko-KR") + "원";
-
-const packs = [];
-const openT = today0 + 8 * 3600e3, nowT = Math.min(today0 + 20 * 3600e3, Math.max(openT + 3 * 3600e3, now.getTime()));
-const sell = (p, t) => { p.st = "sold"; p.at = t; p.pay = rnd() < .8 ? "카드" : "현금"; };
-DISHES.forEach(d => {
-  [3, 2, 1, 0].forEach(back => {
-    if (back === 3 && d.days > 3) return;
-    const made = today0 - back * DAY, n = back === 0 ? 4 + Math.floor(rnd() * 4) : 3 + Math.floor(rnd() * 4);
-    for (let i = 1; i <= n; i++) {
-      const p = { code: code(made, d.id, i), id: d.id, made, exp: made + d.days * DAY, st: "in" };
-      const r = rnd();
-      if (back === 0) { if (r < .4) sell(p, openT + rnd() * (nowT - openT)); }
-      else if (r < .65) sell(p, made + 12 * 3600e3);            // 이전 날에 팔림
-      else if (r < .78) sell(p, openT + rnd() * (nowT - openT));   // 오늘 팔림
-      else if (p.exp < today0 && r < .9) { p.st = "gone"; p.at = today0 + 8.2 * 3600e3; }
-      packs.push(p);
-    }
-  });
-});
-const WEEK = Array.from({length: 7}, (_, i) => { const t = today0 - (6 - i) * DAY, dow = new Date(t).getDay(); return { t, closed: dow === 0, sales: dow === 0 ? 0 : 160000 + Math.round(rnd() * 140) * 1000 }; });
-WEEK[6].sales = packs.filter(p => p.st === "sold" && p.at >= today0).reduce((a, p) => a + dish(p.id).price, 0);
-const WSTAT = Object.fromEntries(DISHES.map(d => [d.id, { sold: 12 + Math.floor(rnd() * 22), gone: rnd() < .45 ? 1 + Math.floor(rnd() * 4) : 0 }]));
+const API_URL = "https://script.google.com/macros/s/AKfycby13vkWEGQjW1dySnWUpKUvfoRWa7gtQDvf2wco7jG8W6mps8HmaCA4G5lO5KQkAldX/exec";
+const JSQR_URL = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js";
+const qs = new URLSearchParams(location.search), DEMO = qs.has("demo");
 
 /* ---------- 공통 ---------- */
 const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-let tab = "scan", cart = [], pickId = 1, qty = 8, toastT;
-function toast(msg){ const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2200); }
-function tick(){ const d = new Date(); $("clock").textContent = `${d.getMonth()+1}월 ${d.getDate()}일 (${"일월화수목금토"[d.getDay()]}) ${pad(d.getHours())}:${pad(d.getMinutes())}`; }
-tick(); setInterval(tick, 20000);
-const soldToday = () => packs.filter(p => p.st === "sold" && p.at >= today0);
-const dleft = p => Math.floor((p.exp - today0) / DAY);
-const urgent = () => packs.filter(p => p.st === "in" && dleft(p) <= 1);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const won = n => (Number(n) || 0).toLocaleString("ko-KR") + "원";
+const pad = n => String(n).padStart(2, "0");
+const store = { get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }, set(k, v){ try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch(e){} } };
+const dnum = ymd => { const p = String(ymd).split("-").map(Number); return Date.UTC(p[0], p[1] - 1, p[2]) / 864e5; };
+const ymdAdd = (ymd, n) => new Date((dnum(ymd) + n) * 864e5).toISOString().slice(0, 10);
+const md = ymd => ymd ? `${+ymd.slice(5, 7)}.${ymd.slice(8, 10)}` : "";
+const dots = ymd => String(ymd).replace(/-/g, ".");
+const safeFile = f => /^[\w.-]+\.(jpe?g|png|webp)$/i.test(f || "") ? f : "";
+const photo = (it, cls) => { const f = safeFile(it && it.photo); return f ? `<img class="${cls}" src="../photos/${encodeURIComponent(f)}" alt="" loading="lazy">` : `<div class="${cls}">${esc((it && it.name || "?").slice(0, 1))}</div>`; };
 
-const TABS = [["scan","계산"],["label","라벨 인쇄"],["stock","재고"],["exp","소비기한"],["today","오늘 매출"],["week","이번 주"]];
-function renderTabs(){
-  const u = urgent().length;
-  $("tabs").innerHTML = TABS.map(([k, n]) => `<button role="tab" aria-selected="${k === tab}" data-t="${k}">${n}${k === "exp" && u ? `<span class="badge">${u}</span>` : ""}${k === "scan" && cart.length ? `<span class="badge">${cart.length}</span>` : ""}</button>`).join("");
+let PIN = store.get("maniPosPin") || "";
+let S = null, syncedAt = 0, syncBad = false;
+let tab = "scan", cart = [], pickRow = 0, qty = 8, busy = false, revealed = false;
+let lastReceipt = null, lastPrinted = [];
+try { lastPrinted = JSON.parse(store.get("maniLastPrinted") || "[]"); } catch(e) {}
+let armed = null, armedT, toastT;
+
+function toast(msg, kind){ const t = $("toast"); t.textContent = msg; t.className = "toast" + (kind ? " " + kind : ""); t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, kind ? 4200 : 2400); }
+function tick(){
+  const d = new Date(); $("clock").textContent = `${d.getMonth()+1}월 ${d.getDate()}일 (${"일월화수목금토"[d.getDay()]}) ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  if (!DEMO && syncedAt) { const s = new Date(syncedAt); $("sync").className = "sync" + (syncBad ? " bad" : ""); $("sync").innerHTML = `<i></i>${syncBad ? "연결 안 됨 · " : ""}${pad(s.getHours())}:${pad(s.getMinutes())} 기록 반영`; }
 }
-$("tabs").onclick = e => { const b = e.target.closest("button[data-t]"); if (b) { tab = b.dataset.t; render(); } };
+/** 위험한 버튼은 두 번 눌러야 실행 */
+function arm(key, btn, label){
+  if (armed === key) { armed = null; clearTimeout(armedT); return true; }
+  armed = key; btn.classList.add("armed"); btn.dataset.orig = btn.textContent; btn.textContent = label;
+  clearTimeout(armedT); armedT = setTimeout(() => { armed = null; btn.classList.remove("armed"); if (btn.dataset.orig) btn.textContent = btn.dataset.orig; }, 3000);
+  return false;
+}
+let actx;
+function beep(ok = true){ try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); const o = actx.createOscillator(), g = actx.createGain(); o.frequency.value = ok ? 1320 : 330; g.gain.value = .08; o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime + (ok ? .09 : .25)); } catch(e) {} }
+
+/* ---------- 서버 ---------- */
+async function api(action, data = {}){
+  if (DEMO) { await new Promise(r => setTimeout(r, 250)); return mockApi(action, data); }
+  const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 30000);
+  try {
+    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ ...data, pin: PIN, action }), signal: ctl.signal });
+    const txt = await res.text();
+    let j; try { j = JSON.parse(txt); } catch (_) { j = { ok: false, error: /doPost/.test(txt) ? "서버가 아직 예전 버전이에요. 앱스 스크립트를 새 버전으로 배포해 주세요." : "서버 답을 읽지 못했어요. 잠시 뒤 다시 해 주세요." }; }
+    if (!j.ok) { const e = new Error(j.error || "기록하지 못했어요."); e.server = true; throw e; }
+    syncBad = false; return j;
+  } catch (e) {
+    if (!e.server) { syncBad = true; tick(); throw new Error(e.name === "AbortError" ? "응답이 늦어요. 인터넷을 확인하고 다시 눌러 주세요." : navigator.onLine === false ? "인터넷 연결을 확인해 주세요." : "서버에 연결하지 못했어요. 잠시 뒤 다시 눌러 주세요."); }
+    throw e;
+  } finally { clearTimeout(tm); }
+}
+function apply(j){
+  S = { today: j.today, now: j.now, shop: j.shop || {}, items: j.items || [], packs: j.packs || [], gone: j.gone || [], sales: j.sales || [] };
+  syncedAt = Date.now(); tick();
+  if (!S.items.some(i => i.row === pickRow)) pickRow = (S.items.find(i => i.on) || S.items[0] || {}).row || 0;
+}
+async function refresh(quiet){
+  if (busy) return;
+  try { apply(await api("load")); render(); if (!quiet) toast("새로 불러왔어요"); }
+  catch (e) { if (/비밀번호/.test(e.message)) return showLogin(e.message); if (!quiet) toast(e.message, "err"); }
+}
+/** 기록 요청(라벨·계산·폐기 등): 중복 누름 막고, 끝나면 최신 상태로 */
+async function act(action, data){
+  if (busy) return null;
+  busy = true; render();
+  try { const j = await api(action, data); apply(j); return j; }
+  catch (e) { if (/비밀번호/.test(e.message)) showLogin(e.message); else toast(e.message, "err"); beep(false); return null; }
+  finally { busy = false; render(); }
+}
+
+/* ---------- 계산 도우미 ---------- */
+const itemBy = name => S.items.find(i => i.name === name);
+const dleft = p => dnum(p.exp) - dnum(S.today);
+const priceOf = p => p.sale || p.price;
+const inCart = code => cart.some(c => c.code === code);
+const todaySales = () => S.sales.filter(s => s.t.slice(0, 10) === S.today);
+const urgent = () => S.packs.filter(p => dleft(p) <= 1);
+const packsOf = name => S.packs.filter(p => p.name === name).sort((a, b) => dnum(a.exp) - dnum(b.exp));
+
+function addCode(raw){
+  const code = String(raw || "").trim().toUpperCase();
+  if (!code || !S) return;
+  if (inCart(code)) { beep(false); return toast("이미 담은 라벨이에요", "warn"); }
+  const p = S.packs.find(x => x.code === code);
+  if (p) { cart.push({ code, name: p.name, price: priceOf(p), full: p.price }); beep(); flash(); toast(`${p.name} 담았어요`); render(); return; }
+  const s = S.sales.find(x => x.code === code);
+  if (s) { beep(false); return toast(`이미 팔린 라벨이에요 (${s.t.slice(5, 16).replace("-", "/")})`, "warn"); }
+  if (S.gone.some(x => x.code === code)) { beep(false); return toast("폐기로 기록한 라벨이에요", "warn"); }
+  if (/^M\d{6}-\d{3,}$/.test(code) && !DEMO && !addCode.retry) {
+    addCode.retry = true; toast("라벨 확인 중…");
+    refresh(true).then(() => { addCode(code); addCode.retry = false; });
+    return;
+  }
+  beep(false); toast(/^M\d{6}-/.test(code) ? "기록에 없는 라벨이에요" : "마니반찬 라벨이 아니에요", "warn");
+}
+function addByName(name){
+  const it = itemBy(name); if (!it) return;
+  const p = packsOf(name).find(x => !inCart(x.code));
+  cart.push(p ? { code: p.code, name, price: priceOf(p), full: p.price } : { name, price: it.price, full: it.price });
+  beep(); render();
+}
+
+/* ---------- 카메라 QR 읽기 ---------- */
+const cam = { want: store.get("maniCamOn") === "1", facing: store.get("maniCamFacing") || "user", stream: null, det: null, timer: 0, last: "", lastT: 0, canvas: null };
+function loadScript(src){ return new Promise((ok, no) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = no; document.head.appendChild(s); }); }
+async function camStart(){
+  const v = $("camVideo"); if (!v) return;
+  cam.want = true; store.set("maniCamOn", "1");
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { cam.want = false; renderCam("이 기기에서는 카메라를 쓸 수 없어요"); return; }
+  try {
+    cam.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: cam.facing, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+  } catch (e) { cam.want = false; store.set("maniCamOn", null); renderCam("카메라를 켤 수 없어요. 브라우저에서 카메라 권한을 허용해 주세요."); return; }
+  if (tab !== "scan" || !$("camVideo")) return camStop(true);
+  v.srcObject = cam.stream; v.classList.toggle("mirror", cam.facing === "user");
+  try { await v.play(); } catch(e) {}
+  if (!cam.det && "BarcodeDetector" in window) { try { const f = await BarcodeDetector.getSupportedFormats(); if (f.includes("qr_code")) cam.det = new BarcodeDetector({ formats: ["qr_code"] }); } catch(e) {} }
+  if (!cam.det && !window.jsQR) { try { await loadScript(JSQR_URL); } catch(e) { renderCam("QR 읽기 도구를 불러오지 못했어요. 인터넷을 확인해 주세요."); return; } }
+  renderCam(); clearTimeout(cam.timer); scanTick();
+}
+function camStop(keepWant){
+  clearTimeout(cam.timer);
+  if (cam.stream) cam.stream.getTracks().forEach(t => t.stop());
+  cam.stream = null;
+  if (!keepWant) { cam.want = false; store.set("maniCamOn", null); }
+}
+async function scanTick(){
+  const v = $("camVideo");
+  if (!cam.stream || !v || tab !== "scan") return;
+  if (v.readyState >= 2 && v.videoWidth) {
+    let txt = null;
+    try {
+      if (cam.det) { const r = await cam.det.detect(v); if (r && r[0]) txt = r[0].rawValue; }
+      else if (window.jsQR) {
+        const w = 640, h = Math.round(v.videoHeight * w / v.videoWidth);
+        const c = cam.canvas || (cam.canvas = document.createElement("canvas")); c.width = w; c.height = h;
+        const ctx = c.getContext("2d", { willReadFrequently: true }); ctx.drawImage(v, 0, 0, w, h);
+        const q = jsQR(ctx.getImageData(0, 0, w, h).data, w, h, { inversionAttempts: "dontInvert" }); if (q) txt = q.data;
+      }
+    } catch(e) {}
+    if (txt) { const now = Date.now(); if (txt !== cam.last || now - cam.lastT > 3000) { cam.last = txt; addCode(txt); } cam.lastT = now; }
+  }
+  cam.timer = setTimeout(scanTick, 180);
+}
+function flash(){ const c = document.querySelector(".cam"); if (c) { c.classList.add("flash"); setTimeout(() => c.classList.remove("flash"), 350); } }
+function renderCam(msg){
+  const ui = $("camUi"); if (!ui) return;
+  const on = !!cam.stream;
+  ui.innerHTML = on ? "" : `<p style="margin:0;opacity:.9">${esc(msg || "라벨의 QR을 카메라에 비추면 담겨요")}</p><button class="btn primary" data-act="camOn">카메라 켜기</button>`;
+  $("camTools").hidden = !on; $("camHint").hidden = !on; ui.parentElement.classList.toggle("on", on);
+}
+
+/* USB·블루투스 바코드 리더(키보드처럼 입력) 받기 */
+let kbuf = "", kT = 0;
+document.addEventListener("keydown", e => {
+  if (tab !== "scan" || !S || e.target.closest("input,textarea")) return;
+  const now = Date.now(); if (now - kT > 120) kbuf = ""; kT = now;
+  if (e.key === "Enter") { if (kbuf.length >= 6) { addCode(kbuf); e.preventDefault(); } kbuf = ""; }
+  else if (e.key.length === 1) kbuf += e.key;
+});
+
+/* ---------- 라벨 ---------- */
+function qrSvg(text){
+  if (typeof qrcode !== "function") return "";
+  const q = qrcode(0, "M"); q.addData(text); q.make();
+  const n = q.getModuleCount(); let d = "";
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c} ${r}h1v1h-1z`;
+  return `<svg viewBox="-1 -1 ${n + 2} ${n + 2}" shape-rendering="crispEdges" aria-hidden="true"><rect x="-1" y="-1" width="${n + 2}" height="${n + 2}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+}
+function labelHtml(p, preview){
+  const it = itemBy(p.name) || {};
+  const ingr = p.ingr ?? it.ingr, allergy = p.allergy ?? it.allergy, shop = S.shop || {};
+  const nc = p.name.length > 10 ? " xs" : p.name.length > 7 ? " s" : "";
+  return `<div class="plabel"><div class="l">
+    <div class="shop">${esc(shop.name || "마니반찬")}</div>
+    <div class="nm${nc}">${esc(p.name)}</div>
+    <div class="pr">${esc(p.unit)}${p.unit ? " · " : ""}${won(p.price)}</div>
+    <div class="dt">제조일 ${dots(p.made)}<br><b>소비기한 ${dots(p.exp)}까지</b></div>
+    <div class="sm">${ingr ? `원재료: ${esc(ingr)}<br>` : ""}${allergy ? `알레르기: ${esc(allergy)}<br>` : ""}${esc(shop.name || "마니반찬")}${shop.phone ? " · " + esc(shop.phone) : ""}</div>
+  </div><div class="r">${preview ? `<div class="qr ph"></div>` : `<div class="qr">${qrSvg(p.code)}</div>`}<div class="cd">${esc(preview ? "번호는 인쇄할 때" : p.code)}</div><div class="keep">냉장 0~10℃</div></div></div>`;
+}
+async function printLabels(packs){
+  if (!packs.length) return;
+  if (typeof qrcode !== "function") { try { await loadScript("https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"); } catch(e) { return toast("QR 도구를 불러오지 못해 인쇄를 못 했어요. 재고에는 들어갔어요. '마지막 라벨 다시 인쇄'를 눌러 주세요.", "err"); } }
+  $("printArea").innerHTML = packs.map(p => labelHtml(p, false)).join("");
+  try { await document.fonts.ready; } catch(e) {}
+  setTimeout(() => window.print(), 60);
+}
 
 /* ---------- 화면 ---------- */
+const TABS = [["scan","계산"],["label","라벨 인쇄"],["stock","재고"],["exp","소비기한"],["today","오늘 매출"],["week","이번 주"]];
+function renderTabs(){
+  const u = S ? urgent().length : 0;
+  $("tabs").innerHTML = TABS.map(([k, n]) => `<button role="tab" type="button" aria-selected="${k === tab}" data-t="${k}">${n}${k === "exp" && u ? `<span class="badge">${u}</span>` : ""}${k === "scan" && cart.length ? `<span class="badge">${cart.length}</span>` : ""}</button>`).join("");
+}
+$("tabs").onclick = e => { const b = e.target.closest("button[data-t]"); if (b && b.dataset.t !== tab) { if (tab === "scan") camStop(true); tab = b.dataset.t; revealed = false; render(); } };
+
+function scanSkeleton(){
+  return `<div class="grid pos">
+    <div class="scan">
+      <div class="cam"><video id="camVideo" playsinline muted></video><div class="frame"></div><div class="camui" id="camUi"></div>
+        <span class="hint" id="camHint" hidden>QR을 네모 안에 비춰 주세요</span>
+        <div class="camtools" id="camTools" hidden><button type="button" data-act="camFlip">카메라 바꾸기</button><button type="button" data-act="camOff">끄기</button></div></div>
+      <form class="codein" id="codeForm"><input id="codeIn" placeholder="라벨 번호 직접 입력 (예: M261119-001)" autocomplete="off" aria-label="라벨 번호"><button class="btn small" type="submit">담기</button></form>
+      <div class="card"><h2 style="font-size:18px">라벨이 안 찍힐 때 · 이름으로 담기</h2><div class="quick" id="quick"></div></div>
+    </div>
+    <div class="card cart" id="cartBox"></div>
+  </div>`;
+}
+function fillScan(){
+  const list = S.items.filter(i => i.on || packsOf(i.name).length);
+  $("quick").innerHTML = list.length ? list.map(i => { const n = packsOf(i.name).length; return `<button type="button" data-add="${esc(i.name)}">${esc(i.name)}<small>${won(i.price)}${n ? ` · 라벨 ${n}` : ""}</small></button>`; }).join("") : `<p class="muted" style="grid-column:1/-1;margin:0">오늘 파는 반찬이 없어요. 라벨을 인쇄하거나 엄마 입력판에서 켜 주세요.</p>`;
+  const sum = cart.reduce((a, c) => a + c.price, 0);
+  const undo = lastReceipt && Date.now() - lastReceipt.at < 15 * 60e3 && !cart.length
+    ? `<div class="undo"><span>방금 ${esc(lastReceipt.pay)} ${won(lastReceipt.sum)} (${lastReceipt.count}팩) 기록됨</span><button class="btn small ghost" type="button" data-cancel="${esc(lastReceipt.rid)}" ${busy ? "disabled" : ""}>계산 취소</button></div>` : "";
+  $("cartBox").innerHTML = `<h2>담은 반찬</h2>
+    <div class="lines">${cart.length ? cart.map((c, i) => `<div class="line"><span>${esc(c.name)}<small>${esc(c.code || "이름으로 담음")}</small></span><em>${c.price < c.full ? `<span class="was">${won(c.full)}</span>` : ""}${won(c.price)}</em><button class="x" type="button" data-rm="${i}" aria-label="${esc(c.name)} 빼기">×</button></div>`).join("") : `<p class="empty">라벨을 찍으면 여기에 담겨요</p>`}</div>
+    <div class="total"><span>합계 ${cart.length}팩</span><b>${won(sum)}</b></div>
+    <p class="muted" style="margin:0;font-size:14px">카드는 이 금액을 카드단말기에 넣어 결제한 뒤 눌러 주세요</p>
+    <div class="pay"><button class="btn green" type="button" data-pay="카드" ${cart.length && !busy ? "" : "disabled"}>${busy ? "기록 중…" : "카드 결제 완료"}</button><button class="btn" type="button" data-pay="현금" ${cart.length && !busy ? "" : "disabled"}>${busy ? "기록 중…" : "현금 결제 완료"}</button></div>
+    <button class="btn ghost small" type="button" data-act="clear" ${cart.length && !busy ? "" : "disabled"}>모두 비우기</button>${undo}`;
+}
+
+function vStock(){
+  const list = S.items.slice().sort((a, b) => (b.on - a.on) || a.cat.localeCompare(b.cat, "ko"));
+  return `<div class="grid stock">${list.map(it => {
+    const ps = packsOf(it.name), n = it.left;
+    const tag = !it.on ? `<span class="pill p-gray">오늘 안 팖</span>` : n === 0 ? `<span class="pill p-red">다 팔림</span>` : n <= 3 ? `<span class="pill p-amber">얼마 안 남음</span>` : `<span class="pill p-green">넉넉</span>`;
+    return `<div class="card sitem ${it.on ? "" : "off"}">${photo(it, "ph")}<div class="in"><b>${esc(it.name)}</b>
+      <div style="display:flex;justify-content:space-between;align-items:end"><span class="n">${n}<small style="font-size:16px">개</small></span>${tag}</div>
+      <span class="muted" style="font-size:14px">${ps.length ? `라벨 붙은 팩 ${ps.length} · 가장 오래된 것 ${md(ps[0].exp)}까지` : "라벨 붙은 팩 없음"}</span></div></div>`;
+  }).join("")}</div>
+  <p class="muted">숫자는 손님 메뉴판에 보이는 남은 수량이에요. 라벨을 인쇄하면 늘고, 계산·폐기하면 줄어요.</p>`;
+}
+
+function vExp(){
+  const inn = S.packs.slice().sort((a, b) => dnum(a.exp) - dnum(b.exp)), rate = S.shop.discount || 30;
+  const groups = [["지남 · 바로 치워 주세요","g-red",p => dleft(p) < 0],["오늘까지","g-red",p => dleft(p) === 0],["내일까지","g-amber",p => dleft(p) === 1]];
+  const html = groups.map(([t, c, f]) => { const rows = inn.filter(f); return rows.length ? `<div class="card group ${c}"><h2>${t} <span class="muted" style="font-size:16px">${rows.length}팩</span></h2>${rows.map(p => {
+    const dis = Math.floor(p.price * (100 - rate) / 100 / 100) * 100;
+    return `<div class="exp-row"><b>${esc(p.name)}</b><small>${esc(p.code)}</small><span>제조 ${md(p.made)} · ${md(p.exp)}까지${p.sale ? `<br><span class="pill p-amber">할인 ${won(p.sale)}</span>` : ""}</span><span class="acts">${dleft(p) < 0 ? "" : p.sale ?`<button class="btn small" type="button" data-disc="${esc(p.code)}" data-price="0" ${busy ? "disabled" : ""}>할인 취소</button>` : `<button class="btn small" type="button" data-disc="${esc(p.code)}" data-price="${dis}" ${busy ? "disabled" : ""}>마감 할인 ${won(dis)}</button>`}<button class="btn small danger" type="button" data-gone="${esc(p.code)}" ${busy ? "disabled" : ""}>폐기</button></span></div>`; }).join("")}</div>` : ""; }).join("");
+  const gone = S.gone.filter(g => g.at.slice(0, 10) === S.today).length;
+  return `<div class="grid">${html || `<div class="card empty">오늘·내일까지인 반찬이 없어요</div>`}<p class="muted">오늘 폐기 ${gone}팩 · 이틀 넘게 남은 반찬은 여기 나오지 않아요 · 마감 할인은 ${rate}% (가게정보 탭 '마감할인율'로 바꿀 수 있어요)</p></div>`;
+}
+
+function vLabel(){
+  const it = S.items.find(i => i.row === pickRow);
+  const pv = it ? { name: it.name, unit: it.unit, price: it.price, made: S.today, exp: ymdAdd(S.today, it.days), code: "", ingr: it.ingr, allergy: it.allergy } : null;
+  const reprint = lastPrinted.length ? `<button class="btn ghost small" type="button" data-act="reprint" style="width:100%;margin-top:10px">마지막 라벨 다시 인쇄 (${esc(lastPrinted[0].name)} ${lastPrinted.length}장)</button>` : "";
+  return `<div class="grid lab">
+    <div class="card"><h2>1. 반찬 고르기</h2><div class="pick">${S.items.map(x => `<button type="button" aria-pressed="${x.row === pickRow}" data-pick="${x.row}">${photo(x, "ph")}<span>${esc(x.name)}<small>${won(x.price)} · 소비기한 ${x.days}일</small></span></button>`).join("") || `<p class="muted">반찬목록이 비어 있어요</p>`}</div></div>
+    <div class="grid" style="align-content:start">
+      <div class="card"><h2>2. 몇 개 만들었나요?</h2><div class="qty"><button type="button" data-q="-1" aria-label="하나 빼기">−</button><b>${qty}</b><button type="button" data-q="1" aria-label="하나 더하기">+</button><span class="muted">팩</span>${[5, 10, 20].map(n => `<button type="button" class="q5" data-qset="${n}">${n}</button>`).join("")}</div></div>
+      <div class="card"><h2>3. 라벨 미리보기</h2>
+        ${pv ? `<div class="preview">${labelHtml(pv, true)}</div>` : ""}
+        <button class="btn primary" type="button" data-act="print" style="width:100%;margin-top:14px;font-size:21px;padding:18px" ${pv && !busy ? "" : "disabled"}>${busy ? "기록 중…" : `라벨 ${qty}장 인쇄하기`}</button>
+        <p class="muted" style="margin:8px 0 0;font-size:14px">누르면 재고가 ${qty}개 늘고 손님 메뉴판에도 바로 보여요. 그다음 인쇄 창에서 라벨 프린터를 고르세요.</p>
+        ${reprint}
+      </div>
+    </div>
+  </div>`;
+}
+
+function hidden(){ return `<div class="card hide"><h2 style="margin:0">매출은 가려 뒀어요</h2><p class="muted" style="margin:0">손님이 화면을 볼 수 있어서요. 다른 탭으로 가면 다시 가려져요.</p><button class="btn primary" type="button" data-act="reveal">보기</button></div>`; }
+function receipts(list){
+  const m = new Map(); list.forEach(s => { const r = m.get(s.rid) || { rid: s.rid, t: s.t, pay: s.pay, names: [], sum: 0 }; r.names.push(s.name); r.sum += s.price; m.set(s.rid, r); });
+  return [...m.values()].sort((a, b) => b.t.localeCompare(a.t));
+}
 function vToday(){
-  const s = soldToday(), sum = s.reduce((a, p) => a + dish(p.id).price, 0), card = s.filter(p => p.pay === "카드").reduce((a, p) => a + dish(p.id).price, 0);
-  const by = DISHES.map(d => ({ d, n: s.filter(p => p.id === d.id).length })).sort((a, b) => b.n - a.n).slice(0, 5), mx = Math.max(1, ...by.map(x => x.n));
-  const hours = Array.from({length: 12}, (_, i) => 8 + i).map(h => ({ h, n: s.filter(p => new Date(p.at).getHours() === h).length })), hm = Math.max(1, ...hours.map(x => x.n));
-  const u = urgent();
+  if (!revealed) return hidden();
+  const s = todaySales(), sum = s.reduce((a, x) => a + x.price, 0), card = s.filter(x => x.pay === "카드").reduce((a, x) => a + x.price, 0);
+  const cnt = {}; s.forEach(x => cnt[x.name] = (cnt[x.name] || 0) + 1);
+  const by = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 6), mx = Math.max(1, ...by.map(x => x[1]));
+  const hours = Array.from({length: 13}, (_, i) => 8 + i).map(h => ({ h, n: s.filter(x => +x.t.slice(11, 13) === h).length })), hm = Math.max(1, ...hours.map(x => x.n));
+  const u = urgent(), rc = receipts(s);
   return `<div class="grid">
-    ${u.length ? `<div class="alert"><span><b>소비기한 임박 ${u.length}팩</b> · 오늘·내일까지인 반찬이 있어요</span><button class="btn small primary" data-go="exp">확인하기</button></div>` : ""}
+    ${u.length ? `<div class="alert"><span><b>소비기한 임박 ${u.length}팩</b> · 오늘·내일까지인 반찬이 있어요</span><button class="btn small primary" type="button" data-go="exp">확인하기</button></div>` : ""}
     <div class="grid kpis">
       <div class="card kpi"><b>${won(sum)}</b><span>오늘 매출</span></div>
-      <div class="card kpi"><b>${s.length}팩</b><span>팔린 반찬</span></div>
+      <div class="card kpi"><b>${s.length}팩</b><span>팔린 반찬 · 계산 ${rc.length}번</span></div>
       <div class="card kpi"><b>${won(card)}</b><span>카드</span></div>
       <div class="card kpi"><b>${won(sum - card)}</b><span>현금</span></div>
     </div>
     <div class="grid two">
-      <div class="card"><h2>많이 팔린 반찬</h2><div class="bars">${by.map(x => `<div class="bar"><span>${esc(x.d.name)}</span><i style="width:${Math.round(100 * x.n / mx)}%"></i><em>${x.n}팩</em></div>`).join("")}</div></div>
+      <div class="card"><h2>많이 팔린 반찬</h2>${by.length ? `<div class="bars">${by.map(([n, c]) => `<div class="bar"><span>${esc(n)}</span><i style="width:${Math.round(100 * c / mx)}%"></i><em>${c}팩</em></div>`).join("")}</div>` : `<p class="empty">아직 판매가 없어요</p>`}</div>
       <div class="card"><h2>시간대별 판매</h2>
-        <svg viewBox="0 0 360 170" role="img" aria-label="시간대별 판매 팩 수" style="width:100%">
-          ${hours.map((x, i) => { const hgt = Math.round(120 * x.n / hm), xx = 14 + i * 28; return `<rect x="${xx}" y="${140 - hgt}" width="20" height="${hgt}" rx="4" fill="var(--tomato)" opacity="${x.n ? 1 : .25}"/><text x="${xx + 10}" y="158" font-size="11" text-anchor="middle" fill="var(--muted)">${x.h}</text>${x.n ? `<text x="${xx + 10}" y="${134 - hgt}" font-size="11" text-anchor="middle" fill="var(--ink)">${x.n}</text>` : ""}`; }).join("")}
-          <line x1="8" x2="352" y1="140" y2="140" stroke="var(--line)"/>
+        <svg viewBox="0 0 380 170" role="img" aria-label="시간대별 판매 팩 수" style="width:100%">
+          ${hours.map((x, i) => { const hgt = Math.round(120 * x.n / hm), xx = 12 + i * 28; return `<rect x="${xx}" y="${140 - hgt}" width="20" height="${hgt}" rx="4" fill="var(--tomato)" opacity="${x.n ? 1 : .25}"/><text x="${xx + 10}" y="158" font-size="11" text-anchor="middle" fill="var(--muted)">${x.h}</text>${x.n ? `<text x="${xx + 10}" y="${134 - hgt}" font-size="11" text-anchor="middle" fill="var(--ink)">${x.n}</text>` : ""}`; }).join("")}
+          <line x1="6" x2="374" y1="140" y2="140" stroke="var(--line)"/>
         </svg>
-        <p class="muted" style="margin:4px 0 0;font-size:14px">시(時) 기준 · 팩 수</p>
-      </div>
+        <p class="muted" style="margin:4px 0 0;font-size:14px">시(時) 기준 · 팩 수</p></div>
     </div>
-  </div>`;
-}
-
-function vScan(){
-  const sum = cart.reduce((a, c) => a + dish(c.id).price, 0);
-  return `<div class="grid pos">
-    <div class="scan">
-      <div class="cam" aria-label="카메라 화면 자리"><p>라벨의 QR을 네모 안에 비춰 주세요</p></div>
-      <button class="btn primary" data-act="demoScan" style="font-size:20px;padding:18px">시연: 라벨 하나 찍기</button>
-      <div class="card"><h2 style="font-size:18px">라벨이 안 찍힐 때 · 이름으로 담기</h2><div class="quick">${DISHES.map(d => `<button data-add="${d.id}">${esc(d.name)}</button>`).join("")}</div></div>
-    </div>
-    <div class="card cart">
-      <h2>담은 반찬</h2>
-      <div class="lines">${cart.length ? cart.map((c, i) => `<div class="line"><span>${esc(dish(c.id).name)}<small>${c.code || "이름으로 담음"}</small></span><em>${won(dish(c.id).price)}</em><button class="x" data-rm="${i}" aria-label="빼기">×</button></div>`).join("") : `<p class="empty">라벨을 찍으면 여기에 담겨요</p>`}</div>
-      <div class="total"><span>합계 ${cart.length}팩</span><b>${won(sum)}</b></div>
-      <p class="muted" style="margin:0;font-size:14px">카드 결제는 이 금액을 카드단말기에 입력한 뒤 눌러 주세요</p>
-      <div class="pay"><button class="btn green" data-pay="카드" ${cart.length ? "" : "disabled"}>카드 결제 완료</button><button class="btn" data-pay="현금" ${cart.length ? "" : "disabled"}>현금 결제 완료</button></div>
-      <button class="btn ghost small" data-act="clear" ${cart.length ? "" : "disabled"}>모두 비우기</button>
-    </div>
-  </div>`;
-}
-
-function vStock(){
-  return `<div class="grid stock">${DISHES.map(d => {
-    const inn = packs.filter(p => p.id === d.id && p.st === "in"), n = inn.length, made = packs.filter(p => p.id === d.id && p.made === today0).length || 1;
-    const old = inn.reduce((m, p) => Math.min(m, p.exp), Infinity), cls = n === 0 ? "zero" : n <= 3 ? "low" : "";
-    const tag = n === 0 ? `<span class="pill p-red">다 팔림</span>` : n <= 3 ? `<span class="pill p-amber">얼마 안 남음</span>` : `<span class="pill p-green">넉넉</span>`;
-    return `<div class="card sitem ${cls}"><img src="../photos/${d.photo}" alt=""><div class="in"><b>${esc(d.name)}</b><div style="display:flex;justify-content:space-between;align-items:end"><span class="n">${n}<small style="font-size:16px">팩</small></span>${tag}</div><div class="meter"><i style="width:${Math.min(100, Math.round(100 * n / Math.max(made, n, 1)))}%"></i></div><span class="muted" style="font-size:14px">${n ? `가장 오래된 것 ${md(old)}까지` : "오늘 더 만들까요?"}</span></div></div>`;
-  }).join("")}</div>`;
-}
-
-function vExp(){
-  const inn = packs.filter(p => p.st === "in").sort((a, b) => a.exp - b.exp);
-  const groups = [["지남 · 바로 치워 주세요","g-red",p => dleft(p) < 0],["오늘까지","g-red",p => dleft(p) === 0],["내일까지","g-amber",p => dleft(p) === 1]];
-  const html = groups.map(([t, c, f]) => { const rows = inn.filter(f); return rows.length ? `<div class="card group ${c}"><h2>${t} <span class="muted" style="font-size:16px">${rows.length}팩</span></h2>${rows.map(p => `<div class="exp-row"><b>${esc(dish(p.id).name)}</b><small>${p.code}</small><span>제조 ${md(p.made)} · ${md(p.exp)}까지</span><span class="acts"><button class="btn small" data-sale="${p.code}">마감 할인</button><button class="btn small" style="background:var(--red-soft);color:var(--red)" data-gone="${p.code}">폐기</button></span></div>`).join("")}</div>` : ""; }).join("");
-  const gone = packs.filter(p => p.st === "gone" && p.at >= today0).length;
-  return `<div class="grid">${html || `<div class="card empty">임박한 반찬이 없어요</div>`}<p class="muted">오늘 폐기 ${gone}팩 · 2일 이상 남은 반찬은 여기 나오지 않아요</p></div>`;
-}
-
-function vLabel(){
-  const d = dish(pickId), mk = today0, ex = mk + d.days * DAY, start = packs.filter(p => p.id === d.id && p.made === today0).length + 1;
-  const show = Math.min(qty, 4);
-  return `<div class="grid lab">
-    <div class="card"><h2>1. 반찬 고르기</h2><div class="pick">${DISHES.map(x => `<button aria-pressed="${x.id === pickId}" data-pick="${x.id}"><img src="../photos/${x.photo}" alt=""><span>${esc(x.name)}</span></button>`).join("")}</div></div>
-    <div class="grid" style="align-content:start">
-      <div class="card"><h2>2. 몇 개 만들었나요?</h2><div class="qty"><button data-q="-1" aria-label="하나 빼기">−</button><b>${qty}</b><button data-q="1" aria-label="하나 더하기">+</button><span class="muted">팩</span></div></div>
-      <div class="card"><h2>3. 라벨 미리보기 <span class="muted" style="font-size:15px">${qty}장 중 ${show}장</span></h2>
-        <div class="labels">${Array.from({length: show}, (_, i) => `<div class="lbl"><div><div class="sm"><b>마니반찬</b></div><div class="nm">${esc(d.name)}</div><div class="sm">${d.unit} · ${won(d.price)}<br>제조 ${md(mk)}<br><b>소비기한 ${md(ex)}까지</b><br>냉장 0~10℃</div></div><div style="display:flex;flex-direction:column;gap:3px"><div class="q"></div><div class="sm" style="font-size:8px;font-family:Consolas,monospace">${code(mk, d.id, start + i).slice(2)}</div></div></div>`).join("")}</div>
-        <button class="btn primary" data-act="print" style="width:100%;margin-top:14px;font-size:21px;padding:18px">라벨 ${qty}장 인쇄하기</button>
-        <p class="muted" style="margin:8px 0 0;font-size:14px">인쇄하면 재고가 ${qty}팩 늘어나고 손님 메뉴판에도 바로 보여요</p>
-      </div>
-    </div>
+    <div class="card"><h2>오늘 계산 기록</h2>${rc.length ? `<table class="rcpt"><thead><tr><th>시각</th><th>반찬</th><th>결제</th><th>금액</th><th></th></tr></thead><tbody>${rc.map(r => `<tr><td>${r.t.slice(11, 16)}</td><td>${esc(r.names.join(", "))}</td><td>${esc(r.pay)}</td><td><b>${won(r.sum)}</b></td><td><button class="btn small ghost" type="button" data-cancel="${esc(r.rid)}" ${busy ? "disabled" : ""}>취소</button></td></tr>`).join("")}</tbody></table>` : `<p class="empty">아직 계산이 없어요</p>`}</div>
   </div>`;
 }
 
 function vWeek(){
-  const mx = Math.max(...WEEK.map(w => w.sales)), tot = WEEK.reduce((a, w) => a + w.sales, 0);
-  const rows = DISHES.map(d => { const w = WSTAT[d.id], left = packs.filter(p => p.id === d.id && p.st === "in" && p.exp > today0 + DAY).length, avg = Math.round(w.sold / 6); return { d, sold: w.sold, gone: w.gone, rate: Math.round(100 * w.gone / (w.sold + w.gone)), make: Math.max(0, avg - left + 1) }; }).sort((a, b) => b.sold - a.sold);
+  if (!revealed) return hidden();
+  const days = Array.from({length: 7}, (_, i) => ymdAdd(S.today, i - 6)).map(d => { const ss = S.sales.filter(s => s.t.slice(0, 10) === d); return { d, sum: ss.reduce((a, s) => a + s.price, 0), n: ss.length, sun: new Date(dnum(d) * 864e5).getUTCDay() === 0 }; });
+  const mx = Math.max(1, ...days.map(w => w.sum)), tot = days.reduce((a, w) => a + w.sum, 0), open = Math.max(1, days.filter(w => w.n).length);
+  const names = [...new Set([...S.sales.map(s => s.name), ...S.gone.map(g => g.name)])];
+  const rows = names.map(name => { const sold = S.sales.filter(s => s.name === name).length, gone = S.gone.filter(g => g.name === name).length, keep = S.packs.filter(p => p.name === name && dleft(p) >= 2).length; return { name, sold, gone, rate: sold + gone ? Math.round(100 * gone / (sold + gone)) : 0, make: Math.max(0, Math.round(sold / open) - keep + 1) }; }).sort((a, b) => b.sold - a.sold);
   return `<div class="grid week">
     <div class="card"><h2>최근 7일 매출 <span class="muted" style="font-size:16px">합계 ${won(tot)}</span></h2>
       <svg viewBox="0 0 420 210" role="img" aria-label="최근 7일 매출" style="width:100%">
-        ${WEEK.map((w, i) => { const h = w.closed ? 0 : Math.round(150 * w.sales / mx), x = 20 + i * 57, d = new Date(w.t); return `<rect x="${x}" y="${170 - h}" width="38" height="${h}" rx="6" fill="${i === 6 ? "var(--tomato)" : "var(--butter)"}"/><text x="${x + 19}" y="188" font-size="12" text-anchor="middle" fill="var(--muted)">${d.getMonth()+1}/${d.getDate()}(${"일월화수목금토"[d.getDay()]})</text><text x="${x + 19}" y="${w.closed ? 160 : 163 - h}" font-size="11" text-anchor="middle" fill="var(--ink)">${w.closed ? "휴무" : Math.round(w.sales / 10000) + "만"}</text>`; }).join("")}
+        ${days.map((w, i) => { const h = Math.round(150 * w.sum / mx), x = 20 + i * 57, dt = new Date(dnum(w.d) * 864e5); const lab = w.sum ? (w.sum >= 10000 ? Math.round(w.sum / 10000) + "만" : won(w.sum)) : (w.sun ? "휴무" : "0"); return `<rect x="${x}" y="${170 - h}" width="38" height="${h}" rx="6" fill="${i === 6 ? "var(--tomato)" : "var(--butter)"}"/><text x="${x + 19}" y="188" font-size="12" text-anchor="middle" fill="var(--muted)">${dt.getUTCMonth()+1}/${dt.getUTCDate()}(${"일월화수목금토"[dt.getUTCDay()]})</text><text x="${x + 19}" y="${163 - h}" font-size="11" text-anchor="middle" fill="var(--ink)">${lab}</text>`; }).join("")}
         <line x1="12" x2="410" y1="170" y2="170" stroke="var(--line)"/>
       </svg></div>
-    <div class="card"><h2>반찬별 · 내일 만들 양</h2><table><thead><tr><th>반찬</th><th>이번 주 판매</th><th>폐기율</th><th>내일 만들 양</th></tr></thead><tbody>${rows.slice(0, 8).map(r => `<tr><td>${esc(r.d.name)}</td><td>${r.sold}</td><td>${r.rate ? `<span class="pill ${r.rate >= 20 ? "p-red" : "p-amber"}">${r.rate}%</span>` : "0%"}</td><td><b>${r.make}팩</b></td></tr>`).join("")}</tbody></table>
-      <p class="muted" style="margin:8px 0 0;font-size:14px">내일 만들 양 = 하루 평균 판매 − 내일 넘어서도 팔 수 있는 재고 + 여유 1팩</p></div>
-  </div>`;
+    <div class="card"><h2>반찬별 · 내일 만들 양</h2>${rows.length ? `<table><thead><tr><th>반찬</th><th>7일 판매</th><th>폐기율</th><th>내일 만들 양</th></tr></thead><tbody>${rows.slice(0, 10).map(r => `<tr><td>${esc(r.name)}</td><td>${r.sold}</td><td>${r.rate ? `<span class="pill ${r.rate >= 20 ? "p-red" : "p-amber"}">${r.rate}%</span>` : "0%"}</td><td><b>${r.make}팩</b></td></tr>`).join("")}</tbody></table>` : `<p class="empty">판매 기록이 쌓이면 보여요</p>`}
+      <p class="muted" style="margin:8px 0 0;font-size:14px">내일 만들 양 = 하루 평균 판매 − 모레 이후까지 팔 수 있는 재고 + 여유 1팩</p></div>
+  </div>
+  ${DEMO ? "" : `<p style="text-align:right"><button class="btn small ghost" type="button" data-act="logout">이 태블릿에서 로그아웃</button></p>`}`;
 }
 
 function render(){
+  if (!S) return;
   renderTabs();
-  $("view").innerHTML = ({today: vToday, scan: vScan, stock: vStock, exp: vExp, label: vLabel, week: vWeek})[tab]();
+  if (tab === "scan") {
+    if (!$("cartBox")) { $("view").innerHTML = scanSkeleton(); renderCam(); if (cam.want) camStart(); }
+    fillScan();
+  } else {
+    $("view").innerHTML = ({ stock: vStock, exp: vExp, label: vLabel, today: vToday, week: vWeek })[tab]();
+  }
 }
 
 /* ---------- 동작 ---------- */
-$("view").onclick = e => {
+$("view").addEventListener("submit", e => { if (e.target.id === "codeForm") { e.preventDefault(); const i = $("codeIn"); addCode(i.value); i.value = ""; } });
+$("view").onclick = async e => {
   const b = e.target.closest("button"); if (!b || b.disabled) return;
-  if (b.dataset.go) { tab = b.dataset.go; render(); return; }
-  if (b.dataset.act === "demoScan") {
-    const cand = packs.filter(p => p.st === "in" && !cart.some(c => c.code === p.code));
-    if (!cand.length) return toast("찍을 라벨이 없어요");
-    const p = cand[Math.floor(Math.random() * cand.length)];
-    cart.push({ code: p.code, id: p.id }); toast(`${dish(p.id).name} 담았어요`); render(); return;
+  const d = b.dataset;
+  if (d.go) { tab = d.go; render(); return; }
+  if (d.act === "camOn") return camStart();
+  if (d.act === "camOff") { camStop(); renderCam(); return; }
+  if (d.act === "camFlip") { cam.facing = cam.facing === "user" ? "environment" : "user"; store.set("maniCamFacing", cam.facing); camStop(true); return camStart(); }
+  if (d.add !== undefined) return addByName(d.add);
+  if (d.rm !== undefined) { cart.splice(+d.rm, 1); render(); return; }
+  if (d.act === "clear") { if (arm("clear", b, "한 번 더 누르면 비워요")) { cart = []; render(); } return; }
+  if (d.pay) {
+    const kind = d.pay, lines = cart.map(c => c.code ? { code: c.code } : { name: c.name });
+    const j = await act("sell", { pay: kind, lines });
+    if (j) { lastReceipt = { ...j.receipt, at: Date.now() }; cart = []; render(); toast(`${kind} ${won(j.receipt.sum)} 기록했어요 · 재고 ${j.receipt.count}개 줄었어요` + (j.warn && j.warn.length ? ` (확인: ${j.warn.join(", ")})` : ""), j.warn && j.warn.length ? "warn" : ""); }
+    return;
   }
-  if (b.dataset.add) {
-    const id = +b.dataset.add, p = packs.filter(x => x.id === id && x.st === "in" && !cart.some(c => c.code === x.code)).sort((a, c) => a.exp - c.exp)[0];
-    if (!p) return toast(`${dish(id).name} 재고가 없어요`);
-    cart.push({ code: p.code, id }); render(); return;
+  if (d.cancel) {
+    if (!arm("c" + d.cancel, b, "한 번 더 누르면 취소")) return;
+    const j = await act("cancel", { rid: d.cancel });
+    if (j) { if (lastReceipt && lastReceipt.rid === d.cancel) lastReceipt = null; render(); toast(`계산 취소했어요 · 재고 ${j.cancelled}개 되돌렸어요`); }
+    return;
   }
-  if (b.dataset.rm !== undefined) { cart.splice(+b.dataset.rm, 1); render(); return; }
-  if (b.dataset.act === "clear") { cart = []; render(); return; }
-  if (b.dataset.pay) {
-    const t = Date.now(), sum = cart.reduce((a, c) => a + dish(c.id).price, 0);
-    cart.forEach(c => { const p = packs.find(x => x.code === c.code); if (p) { p.st = "sold"; p.at = t; p.pay = b.dataset.pay; } });
-    toast(`${b.dataset.pay} ${won(sum)} 기록했어요 · 재고 ${cart.length}팩 줄었어요`); cart = []; render(); return;
+  if (d.gone) {
+    if (!arm("g" + d.gone, b, "한 번 더 누르면 폐기")) return;
+    const j = await act("discard", { code: d.gone }); if (j) toast("폐기로 기록했어요 · 재고 1개 줄었어요"); return;
   }
-  if (b.dataset.sale) { toast("마감 할인 표시했어요 (시안)"); return; }
-  if (b.dataset.gone) { const p = packs.find(x => x.code === b.dataset.gone); p.st = "gone"; p.at = Date.now(); toast(`${dish(p.id).name} 폐기로 기록했어요`); render(); return; }
-  if (b.dataset.pick) { pickId = +b.dataset.pick; render(); return; }
-  if (b.dataset.q) { qty = Math.max(1, Math.min(40, qty + +b.dataset.q)); render(); return; }
-  if (b.dataset.act === "print") {
-    const d = dish(pickId), start = packs.filter(p => p.id === d.id && p.made === today0).length;
-    for (let i = 1; i <= qty; i++) packs.push({ code: code(today0, d.id, start + i), id: d.id, made: today0, exp: today0 + d.days * DAY, st: "in" });
-    toast(`${d.name} 라벨 ${qty}장 인쇄 · 재고 +${qty}`); render(); return;
+  if (d.disc) { const j = await act("discount", { code: d.disc, price: +d.price }); if (j) toast(+d.price ? `마감 할인 ${won(+d.price)} · 계산할 때 이 값으로 받아요` : "할인 취소했어요"); return; }
+  if (d.pick) { pickRow = +d.pick; render(); return; }
+  if (d.q) { qty = Math.max(1, Math.min(60, qty + +d.q)); render(); return; }
+  if (d.qset) { qty = +d.qset; render(); return; }
+  if (d.act === "print") {
+    const it = S.items.find(i => i.row === pickRow); if (!it) return;
+    const j = await act("label", { row: it.row, name: it.name, qty });
+    if (j) { lastPrinted = j.printed; store.set("maniLastPrinted", JSON.stringify(lastPrinted)); render(); toast(`${it.name} 재고 +${qty} · 인쇄 창이 열려요`); printLabels(lastPrinted); }
+    return;
   }
+  if (d.act === "reprint") return printLabels(lastPrinted);
+  if (d.act === "reveal") { revealed = true; render(); return; }
+  if (d.act === "logout") { if (arm("logout", b, "한 번 더 누르면 로그아웃")) { store.set("maniPosPin", null); PIN = ""; camStop(); showLogin(""); } return; }
+};
+$("refresh").onclick = () => refresh(false);
+
+/* ---------- 로그인 ---------- */
+function showLogin(msg){ $("login").hidden = false; $("loginErr").textContent = msg || ""; $("pin").value = ""; setTimeout(() => $("pin").focus(), 50); }
+$("loginForm").onsubmit = async e => {
+  e.preventDefault();
+  const pin = $("pin").value.trim(); if (!pin) return;
+  $("loginBtn").disabled = true; $("loginBtn").textContent = "확인 중…"; $("loginErr").textContent = "";
+  PIN = pin;
+  try { apply(await api("load")); store.set("maniPosPin", pin); $("login").hidden = true; render(); }
+  catch (err) { $("loginErr").textContent = err.message; PIN = ""; }
+  finally { $("loginBtn").disabled = false; $("loginBtn").textContent = "시작하기"; }
 };
 
-const start = new URLSearchParams(location.search).get("tab");
-if (start && TABS.some(t => t[0] === start)) tab = start;
-if (start === "scan") { const s = packs.filter(p => p.st === "in"); [0, 5, 11].forEach(i => s[i] && cart.push({ code: s[i].code, id: s[i].id })); }
-render();
+/* ---------- 시연용 가짜 서버 (?demo=1) : 실제 서버와 같은 모양으로 답함 ---------- */
+let M = null;
+function mockInit(){
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const now = new Date(), ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`, today = ymd(now);
+  const DI = [["나물","시금치나물","200g",4000,3,"ex-sigeumchi.jpg","시금치(국산), 참기름, 깨, 간장, 마늘","대두, 밀, 참깨"],["나물","콩나물무침","250g",3000,3,"ex-kongnamul.jpg","",""],["나물","고사리볶음","200g",5000,4,"ex-gosari.jpg","",""],["볶음·조림","멸치볶음","150g",6000,7,"ex-myeolchi.jpg","",""],["볶음·조림","장조림","300g",8000,5,"ex-jangjorim.jpg","",""],["볶음·조림","어묵볶음","250g",4000,3,"ex-eomuk.jpg","",""],["볶음·조림","감자조림","300g",4000,3,"ex-gamja.jpg","",""],["김치","배추김치","1kg",12000,14,"ex-kimchi.jpg","",""],["김치","깍두기","500g",7000,10,"ex-kkakdugi.jpg","",""],["김치","오이소박이","6개입",8000,4,"ex-oisobagi.jpg","",""],["국·찌개","된장찌개 재료","2인분",7000,2,"ex-doenjang.jpg","",""],["국·찌개","소고기미역국","1L",9000,2,"ex-miyeok.jpg","",""]];
+  const items = DI.map((d, i) => ({ row: i + 2, on: true, cat: d[0], name: d[1], unit: d[2], price: d[3], left: 0, made: "오늘 아침", photo: d[5], days: d[4], ingr: d[6], allergy: d[7] }));
+  const packs = [], sales = [], seq = {};
+  const nowH = Math.max(11, Math.min(19, now.getHours()));
+  const tstr = (day, h, m) => `${day} ${pad(h)}:${pad(m)}:${pad(Math.floor(rnd() * 60))}`;
+  const code = day => { const k = day.slice(2).replace(/-/g, ""); seq[k] = (seq[k] || 0) + 1; return `M${k}-${String(seq[k]).padStart(3, "0")}`; };
+  let rn = 0; const sale = (name, price, t, c) => sales.push({ rid: "D" + (++rn), t, name, price, pay: rnd() < .8 ? "카드" : "현금", code: c || "", st: "정상" });
+  items.forEach(it => {
+    [3, 2, 1, 0].forEach(back => {
+      if (back === 3 && it.days > 3) return;
+      const made = ymdAdd(today, -back), n = back === 0 ? 4 + Math.floor(rnd() * 4) : 3 + Math.floor(rnd() * 4);
+      for (let i = 0; i < n; i++) {
+        const p = { code: code(made), name: it.name, unit: it.unit, price: it.price, made, exp: ymdAdd(made, it.days), st: "재고", at: made + " 08:30:00", sale: 0 }, r = rnd();
+        if (back === 0) { if (r < .4) { p.st = "판매"; sale(it.name, it.price, tstr(today, 8 + Math.floor(rnd() * (nowH - 8)), Math.floor(rnd() * 60)), p.code); } }
+        else if (r < .65) { p.st = "판매"; sale(it.name, it.price, tstr(made, 10 + Math.floor(rnd() * 9), Math.floor(rnd() * 60)), p.code); }
+        else if (r < .78) { p.st = "판매"; sale(it.name, it.price, tstr(today, 8 + Math.floor(rnd() * (nowH - 8)), Math.floor(rnd() * 60)), p.code); }
+        else if (dnum(p.exp) < dnum(today) && r < .9) { p.st = "폐기"; p.at = today + " 08:20:00"; }
+        packs.push(p);
+      }
+    });
+  });
+  for (let back = 4; back <= 6; back++) { const day = ymdAdd(today, -back); if (new Date(dnum(day) * 864e5).getUTCDay() === 0) continue; const n = 30 + Math.floor(rnd() * 20); for (let i = 0; i < n; i++) { const it = items[Math.floor(rnd() * items.length)]; sale(it.name, it.price, tstr(day, 9 + Math.floor(rnd() * 10), Math.floor(rnd() * 60))); } }
+  items.forEach(it => it.left = packs.filter(p => p.name === it.name && p.st === "재고").length);
+  // 계산 그룹: 같은 시각대 2~3팩씩 묶기
+  sales.sort((a, b) => a.t.localeCompare(b.t)); let g = 0; sales.forEach((s, i) => { if (i % (2 + (i % 2)) === 0) g++; s.rid = "D" + g; });
+  M = { items, packs, sales, seq, shop: { name: "마니반찬", phone: "010-4110-7115", discount: 30 } };
+}
+function mockApi(action, req){
+  if (!M) mockInit();
+  const n = new Date(), today = `${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}`, t = `${today} ${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+  const item = name => M.items.find(i => i.name === name), out = { ok: true };
+  const fail = msg => { throw Object.assign(new Error(msg), { server: true }); };
+  if (action === "label") {
+    const it = M.items.find(i => i.row === req.row && i.name === req.name); if (!it) fail("반찬을 찾지 못했어요.");
+    const k = today.slice(2).replace(/-/g, ""); out.printed = [];
+    for (let i = 0; i < req.qty; i++) { M.seq[k] = (M.seq[k] || 0) + 1; const p = { code: `M${k}-${String(M.seq[k]).padStart(3, "0")}`, name: it.name, unit: it.unit, price: it.price, made: today, exp: ymdAdd(today, it.days), st: "재고", at: t, sale: 0 }; M.packs.push(p); out.printed.push({ ...p, ingr: it.ingr, allergy: it.allergy }); }
+    it.left += req.qty; it.on = true;
+  } else if (action === "sell") {
+    const rid = "D" + Date.now(), warn = [], sold = [];
+    req.lines.forEach(l => {
+      if (l.code) { const p = M.packs.find(x => x.code === l.code); if (!p || p.st !== "재고") { warn.push(l.code + " 확인 필요"); return; } p.st = "판매"; p.at = t; sold.push({ rid, t, name: p.name, price: p.sale || p.price, pay: req.pay, code: p.code, st: "정상" }); }
+      else { const it = item(l.name); if (!it) { warn.push(l.name + " 없음"); return; } sold.push({ rid, t, name: it.name, price: it.price, pay: req.pay, code: "", st: "정상" }); }
+    });
+    if (!sold.length) fail(warn.join(" / "));
+    sold.forEach(s => { M.sales.push(s); const it = item(s.name); if (it) it.left = Math.max(0, it.left - 1); });
+    out.receipt = { rid, pay: req.pay, count: sold.length, sum: sold.reduce((a, s) => a + s.price, 0) }; out.warn = warn;
+  } else if (action === "cancel") {
+    const ss = M.sales.filter(s => s.rid === req.rid && s.st === "정상"); if (!ss.length) fail("취소할 계산을 찾지 못했어요.");
+    ss.forEach(s => { s.st = "취소"; const it = item(s.name); if (it) it.left++; const p = M.packs.find(x => x.code && x.code === s.code); if (p) p.st = "재고"; });
+    out.cancelled = ss.length;
+  } else if (action === "discard" || action === "discount") {
+    const p = M.packs.find(x => x.code === req.code && x.st === "재고"); if (!p) fail("라벨을 찾지 못했어요.");
+    if (action === "discard") { p.st = "폐기"; p.at = t; const it = item(p.name); if (it) it.left = Math.max(0, it.left - 1); }
+    else p.sale = req.price || 0;
+  }
+  const from = ymdAdd(today, -6);
+  return Object.assign(out, { today, now: t, shop: M.shop, items: M.items.map(i => ({ ...i })), packs: M.packs.filter(p => p.st === "재고").map(p => ({ ...p })),
+    gone: M.packs.filter(p => p.st === "폐기" && p.at.slice(0, 10) >= from).map(p => ({ code: p.code, name: p.name, at: p.at })),
+    sales: M.sales.filter(s => s.st === "정상" && s.t.slice(0, 10) >= from).map(s => ({ ...s })) });
+}
+
+/* ---------- 시작 ---------- */
+const startTab = qs.get("tab"); if (startTab && TABS.some(t => t[0] === startTab)) tab = startTab;
+tick(); setInterval(tick, 20000);
+if (DEMO) {
+  $("mode").hidden = false; $("mode").textContent = "시연 · 예시 데이터 (기록 안 됨)";
+  apply(mockApi("load", {}));
+  if (qs.get("reveal")) revealed = true;
+  if (tab === "scan" && qs.get("cart")) { S.packs.slice(0, 3).forEach(p => cart.push({ code: p.code, name: p.name, price: priceOf(p), full: p.price })); }
+  render();
+  if (qs.get("printtest")) $("printArea").innerHTML = S.packs.slice(0, 2).map(p => labelHtml(p, false)).join("");
+} else if (PIN) {
+  api("load").then(j => { apply(j); render(); }).catch(e => { if (/비밀번호/.test(e.message)) showLogin(e.message); else { $("view").innerHTML = `<div class="card empty">${esc(e.message)}<br><br><button class="btn primary" type="button" onclick="location.reload()">다시 시도</button></div>`; } });
+} else showLogin("");
+setInterval(() => { if (!DEMO && S && !busy && document.visibilityState === "visible") refresh(true); }, 60000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") camStop(true); else if (tab === "scan" && cam.want && S) camStart(); });
 </script>
 </body>
 </html>
