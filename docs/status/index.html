@@ -91,6 +91,27 @@ a.tile:hover{transform:translateY(-3px);border-color:var(--tomato);box-shadow:0 
 .log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .log time{display:block;color:var(--muted);font-size:.82rem;font-variant-numeric:tabular-nums}
 .err{color:var(--tomato)}
+/* 사업 계획 */
+.vision{font-family:var(--display);font-size:1.25rem;line-height:1.4;margin:0 0 14px;word-break:keep-all}
+.vision em{font-style:normal;color:var(--tomato)}
+.stages{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stage{border:2px solid var(--line);border-radius:16px;padding:14px 14px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.stage.now{border-color:var(--tomato);background:var(--tomato-soft)}
+.stage b{font-family:var(--display);font-weight:400;font-size:1.15rem}
+.stage small{color:var(--muted)}
+.stage ul{margin:0;padding-left:1.1em;font-size:.92rem}
+.stage .mom{font-size:.86rem;background:var(--butter);border-radius:8px;padding:4px 8px}
+.stage .gate{margin-top:auto;font-size:.84rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:6px}
+.weeks{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.weeks div{border:1px solid var(--line);border-radius:14px;padding:10px 12px;min-width:0}
+.weeks b{display:block;font-size:.95rem;margin-bottom:4px}
+.weeks ul{margin:0;padding-left:1.05em;font-size:.86rem;color:var(--muted)}
+table.kpi{width:100%;border-collapse:collapse;font-size:.92rem;margin-top:6px}
+table.kpi th,table.kpi td{text-align:left;padding:7px 6px;border-top:1px solid var(--line);vertical-align:top}
+table.kpi th{color:var(--muted);font-weight:500;font-size:.82rem;border-top:none}
+.plan-sub{font-family:var(--display);font-weight:400;font-size:1.1rem;margin:18px 0 6px}
+@media (max-width:760px){.stages{grid-template-columns:1fr}.weeks{grid-template-columns:1fr 1fr}}
+@media (max-width:460px){.weeks{grid-template-columns:1fr}}
 a:focus-visible,summary:focus-visible{outline:2px solid var(--tomato);outline-offset:3px;border-radius:8px}
 @media (max-width:640px){
   .steps{grid-template-columns:1fr 1fr}
@@ -125,12 +146,30 @@ function tiles(list, btn){
     </a>`).join("")}</div>`;
 }
 
+// 사업 계획 요약: 비전 → 3단계(넘어가는 조건) → 12주 계획 → 알게 된 것 → 볼 숫자
+function planCard(p){
+  const li = a => (a || []).map(x => `<li>${esc(x)}</li>`).join("");
+  return `<section class="card" aria-label="사업 계획"><h2>사업 계획</h2>
+    <p class="vision">${esc(p.vision)}</p>
+    <div class="stages">${p.stages.map(st => `
+      <div class="stage ${st.now ? "now" : ""}"><b>${esc(st.name)}</b><small>${esc(st.period)}</small><ul>${li(st.items)}</ul>
+        <span class="mom">엄마 역할: ${esc(st.mom)}</span>${st.gate ? `<span class="gate">다음 단계로: ${esc(st.gate)}</span>` : ""}</div>`).join("")}</div>
+    <p class="plan-sub">앞으로 12주</p>
+    <div class="weeks">${p.weeks.map(w => `<div><b>${esc(w.label)}</b><ul>${li(w.items)}</ul></div>`).join("")}</div>
+    ${p.found && p.found.length ? `<p class="plan-sub">알게 된 것</p><ul class="plain">${li(p.found)}</ul>` : ""}
+    <p class="plan-sub">매주 볼 숫자</p>
+    <table class="kpi"><thead><tr><th>숫자</th><th>지금</th><th>12주 목표 (제안)</th></tr></thead><tbody>${p.kpis.map(k => `<tr><td>${esc(k.name)}</td><td>${esc(k.now)}</td><td>${esc(k.goal)}</td></tr>`).join("")}</tbody></table>
+  </section>`;
+}
+
 function render(s, live){
   const all = s.phases.flatMap(p => p.tasks), total = Math.round(100 * all.filter(t => t.done).length / all.length);
   const now = s.phases.find(p => p.status === "now") || s.phases[0];
   const later = s.phases.filter(p => p.status === "next");
   document.getElementById("app").innerHTML = `
     <header><h1><span>마니반찬</span> 진행 현황</h1><span class="upd">${fmtDate(s.updated)} 업데이트</span></header>
+
+    ${s.plan ? planCard(s.plan) : ""}
 
     <section aria-label="웹페이지"><h2>웹페이지</h2>${tiles(s.pages, "열기")}</section>
 
