@@ -126,12 +126,12 @@ div.ph{display:flex !important;align-items:center;justify-content:center;font-fa
 .plabel{width:62mm;height:40mm;padding:2.2mm 2.4mm 2mm;display:grid;grid-template-columns:1fr 17mm;gap:1.6mm;background:#fff;color:#000;font-family:"Noto Sans KR","Malgun Gothic",sans-serif;overflow:hidden;line-height:1.2}
 .plabel .l{display:flex;flex-direction:column;gap:.5mm;min-width:0}
 .plabel .shop{font-size:5.5pt;font-weight:700}
-.plabel .nm{font-size:12pt;font-weight:900;line-height:1.05;word-break:keep-all}
-.plabel .nm.s{font-size:10pt} .plabel .nm.xs{font-size:8.5pt}
-.plabel .pr{font-size:7.5pt;font-weight:700}
-.plabel .dt{margin-top:.4mm;border-top:.25mm solid #000;padding-top:.6mm;font-size:6pt;line-height:1.3}
-.plabel .dt b{font-size:7pt;font-weight:900}
-.plabel .sm{font-size:4.6pt;line-height:1.3;overflow:hidden}
+.plabel .nm{font-size:13pt;font-weight:900;line-height:1.05;word-break:keep-all}
+.plabel .nm.s{font-size:11pt} .plabel .nm.xs{font-size:9pt}
+.plabel .pr{font-size:8pt;font-weight:700}
+.plabel .dt{margin-top:.6mm;border-top:.25mm solid #000;padding-top:.8mm;font-size:6.8pt;line-height:1.35}
+.plabel .dt b{font-size:8pt;font-weight:900}
+.plabel .sm{margin-top:auto;font-size:5pt;line-height:1.35;overflow:hidden}
 .plabel .r{display:flex;flex-direction:column;align-items:center;justify-content:space-between}
 .plabel .qr{width:17mm;height:17mm}
 .plabel .qr svg{width:100%;height:100%;display:block}
@@ -407,15 +407,15 @@ function qrSvg(text){
   return `<svg viewBox="-1 -1 ${n + 2} ${n + 2}" shape-rendering="crispEdges" aria-hidden="true"><rect x="-1" y="-1" width="${n + 2}" height="${n + 2}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
 }
 function labelHtml(p, preview){
-  const it = itemBy(p.name) || {};
-  const ingr = p.ingr ?? it.ingr, allergy = p.allergy ?? it.allergy, shop = S.shop || {};
+  // 원재료·원산지·알레르기·식품유형은 매장 게시 안내판(/notice/)으로 갈음 (연수구청 위생정책과 안내, 2026-11-20)
+  const shop = S.shop || {};
   const nc = p.name.length > 10 ? " xs" : p.name.length > 7 ? " s" : "";
   return `<div class="plabel"><div class="l">
     <div class="shop">${esc(shop.name || "마니반찬")}</div>
     <div class="nm${nc}">${esc(p.name)}</div>
     <div class="pr">${esc(p.unit)}${p.unit ? " · " : ""}${won(p.price)}</div>
     <div class="dt">제조일 ${dots(p.made)}<br><b>소비기한 ${dots(p.exp)}까지</b></div>
-    <div class="sm">${ingr ? `원재료: ${esc(ingr)}<br>` : ""}${allergy ? `알레르기: ${esc(allergy)}<br>` : ""}${esc(shop.name || "마니반찬")}${shop.phone ? " · " + esc(shop.phone) : ""}</div>
+    <div class="sm">원재료·원산지·알레르기는 매장 안내판 참고<br>${esc(shop.name || "마니반찬")}${shop.phone ? " · " + esc(shop.phone) : ""}</div>
   </div><div class="r">${preview ? `<div class="qr ph"></div>` : `<div class="qr">${qrSvg(p.code)}</div>`}<div class="cd">${esc(preview ? "번호는 인쇄할 때" : p.code)}</div><div class="keep">냉장 0~10℃</div></div></div>`;
 }
 async function printLabels(packs){
@@ -496,6 +496,7 @@ function vLabel(){
         <button class="btn primary" type="button" data-act="print" style="width:100%;margin-top:14px;font-size:21px;padding:18px" ${pv && !busy ? "" : "disabled"}>${busy ? "기록 중…" : `라벨 ${qty}장 인쇄하기`}</button>
         <p class="muted" style="margin:8px 0 0;font-size:14px">누르면 재고가 ${qty}개 늘고 손님 메뉴판에도 바로 보여요. 그다음 인쇄 창에서 라벨 프린터를 고르세요.</p>
         ${reprint}
+        <a class="btn ghost small" href="../notice/${DEMO ? "?demo=1" : ""}" target="_blank" rel="noopener" style="display:block;width:100%;margin-top:12px;text-decoration:none;text-align:center;color:inherit">매장 안내판(원재료·원산지·알레르기) 인쇄</a>
       </div>
     </div>
   </div>`;

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>식품 표시사항 안내판</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+/* 매장 게시용 표시사항 안내판 (A4 가로). 연수구청 위생정책과 안내(2026-11-20):
+   매장에서만 팔 때는 반찬별 표시사항을 표로 만들어 게시하면 개별 라벨을 갈음함. */
+:root{--bg:#eef0eb;--paper:#fff;--fg:#111;--muted:#555;--line:#222;--soft:#e9e9e9;--warn:#b3261e;--warn-soft:#fbe4e1;--accent:#2f6b3a;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif;line-height:1.45}
+.tools{max-width:1100px;margin:0 auto;padding:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tools h1{font-size:20px;margin:0 auto 0 0}
+.tools button,.tools label{font:inherit;font-size:15px}
+.tools button{border:none;background:var(--accent);color:#fff;border-radius:10px;padding:10px 18px;font-weight:700;cursor:pointer}
+.tools button.ghost{background:var(--paper);color:var(--fg);border:1px solid #bbb}
+.tools button[aria-pressed="true"]{outline:2px solid var(--fg)}
+.msg{max-width:1100px;margin:0 auto 12px;padding:0 16px}
+.msg p,.msg div{margin:0 0 8px;padding:10px 14px;border-radius:10px;background:var(--paper);font-size:14px}
+.msg .warn{background:var(--warn-soft);color:var(--fg)}
+.msg ul{margin:6px 0 0;padding-left:20px}
+.sheet{max-width:1100px;margin:0 auto 40px;padding:0 16px}
+.page{background:var(--paper);padding:14mm 12mm;box-shadow:0 2px 12px rgba(0,0,0,.12);overflow-x:auto}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;border-bottom:1.2mm solid var(--fg);padding-bottom:3mm;margin-bottom:4mm}
+.head h2{margin:0;font-size:22pt;font-weight:900;letter-spacing:-.02em}
+.head .shop{text-align:right;font-size:10pt;color:var(--muted)}
+.head .shop b{color:var(--fg);font-size:13pt}
+table{width:100%;border-collapse:collapse;font-size:10.5pt;min-width:640px}
+th,td{border:.3mm solid var(--line);padding:2mm 2.4mm;vertical-align:top;text-align:left}
+th{background:var(--soft);font-weight:700;white-space:nowrap}
+td.nm{font-weight:900;font-size:11.5pt;word-break:keep-all}
+td.al{font-weight:900}
+td.c{white-space:nowrap}
+td .miss{color:var(--warn);font-weight:700}
+tr.cat td{background:#f6f6f6;font-weight:700;font-size:9.5pt;padding:1.2mm 2.4mm}
+.foot{margin-top:5mm;display:grid;grid-template-columns:1.25fr 1fr;gap:3mm;font-size:9.5pt}
+.box{border:.3mm solid var(--line);padding:2.6mm 3mm}
+.box h3{margin:0 0 1mm;font-size:10pt}
+.box p{margin:0}
+.box.big{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:2mm 8mm;align-items:center;font-size:11pt}
+.box.big b{font-size:12.5pt}
+@media (max-width:700px){.foot{grid-template-columns:1fr}.head{flex-direction:column;align-items:flex-start}.head .shop{text-align:left}.page{padding:16px}}
+@media print{
+  @page{size:A4 landscape;margin:9mm}
+  body{background:#fff}
+  .tools,.msg{display:none !important}
+  .sheet{max-width:none;margin:0;padding:0}
+  .page{box-shadow:none;padding:0;overflow:visible}
+  table{min-width:0}
+  thead{display:table-header-group}
+  tr{break-inside:avoid;page-break-inside:avoid}
+  td .miss{color:#000;font-weight:400}
+  .foot{break-inside:avoid;page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="tools">
+  <h1>매장 게시용 표시사항 안내판</h1>
+  <button type="button" class="ghost" data-f="all" aria-pressed="true">모든 반찬</button>
+  <button type="button" class="ghost" data-f="on" aria-pressed="false">오늘 파는 반찬만</button>
+  <button type="button" id="print">A4로 인쇄하기</button>
+</div>
+<div class="msg" id="msg"></div>
+<div class="sheet"><div class="page" id="page"><p>불러오는 중이에요…</p></div></div>
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycby13vkWEGQjW1dySnWUpKUvfoRWa7gtQDvf2wco7jG8W6mps8HmaCA4G5lO5KQkAldX/exec";
+const ALLERGENS = "알류(가금류), 우유, 메밀, 땅콩, 대두, 밀, 고등어, 게, 새우, 돼지고기, 복숭아, 토마토, 아황산류, 호두, 닭고기, 쇠고기, 오징어, 조개류(굴·전복·홍합 포함), 잣";
+/* ?demo=1 : 연수구청이 보내 준 예시(안) 그대로 */
+const DEMO = {shop:{name:"마니반찬",phone:"010-4110-7115",address:"인천 연수구 선학로 101"},info:[
+  {on:true,cat:"볶음·조림",name:"계란말이",unit:"180g",type:"즉석조리식품",ingr:"계란(국내산) 80%, 당근(중국산) 8%, 쪽파(국내산) 8%",allergy:"알류",days:5},
+  {on:true,cat:"볶음·조림",name:"미역줄기볶음",unit:"250g",type:"조림류",ingr:"미역줄기(국내산) 80%, 양파(국내산) 10%, 당근(중국산) 5%, 다진마늘(국내산)",allergy:"없음",days:10},
+  {on:true,cat:"볶음·조림",name:"두부조림",unit:"400g",type:"조림류",ingr:"두부(국내산) 50%, 양파(국내산) 5%, 대파(국내산) 3%, 고춧가루(중국산), 참기름, 가공소금",allergy:"대두",days:5},
+  {on:true,cat:"김치",name:"열무김치",unit:"300g",type:"김치",ingr:"열무(국내산) 70%, 고춧가루(중국산) 10%, 양파(국내산) 3%, 천일염(국내산), 파(국내산), 액젓(국내산)",allergy:"",days:30}]};
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const demo = new URLSearchParams(location.search).has("demo");
+let data = null, filter = "all", note = "";
+
+function cell(v, what){ return v ? esc(v) : `<span class="miss">(${what} 적기)</span>`; }
+
+function render(){
+  const s = data.shop || {}, name = s.name || "마니반찬", where = [s.address || "인천 연수구 선학로 101", s.phone].filter(Boolean).join(" · "), list = (data.info || []).filter(x => x.name && (filter === "all" || x.on));
+  const d = new Date(), ymd = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`;
+  const miss = { type: [], ingr: [], allergy: [] };
+  list.forEach(x => { if (!x.type) miss.type.push(x.name); if (!x.ingr) miss.ingr.push(x.name); if (!x.allergy) miss.allergy.push(x.name); });
+  const nMiss = miss.type.length + miss.ingr.length + miss.allergy.length;
+  let last = null;
+  const rows = list.map(x => {
+    const head = x.cat !== last ? `<tr class="cat"><td colspan="6">${esc(x.cat || "기타")}</td></tr>` : ""; last = x.cat;
+    return head + `<tr><td class="nm">${esc(x.name)}</td><td class="c">${cell(x.type, "식품유형")}</td><td class="c">${esc(x.unit)}</td>
+      <td>${cell(x.ingr, "원재료·원산지")}</td><td class="al">${cell(x.allergy, "알레르기, 없으면 '없음'")}</td><td class="c">${x.days === undefined ? cell("", "소비기한 일수") : `제조일로부터 ${Number(x.days) || 0}일`}</td></tr>`;
+  }).join("");
+
+  $("msg").innerHTML = (demo ? `<p>구청이 보내 준 <b>예시(안)</b>를 보여 주고 있어요. 실제 반찬은 주소 끝의 <code>?demo=1</code>을 지우면 나와요.</p>` : "")
+    + (note ? `<p class="warn">${note}</p>` : "")
+    + (nMiss && !note ? `<div class="warn"><b>시트 반찬목록에 빈칸이 ${nMiss}개 있어요.</b> 채우면 이 화면에 바로 반영돼요 (빨간 글씨는 인쇄할 때 검정색으로 나와요).
+        <ul>${miss.type.length ? `<li><b>L열 식품유형</b> (${miss.type.length}개): 구청 예시처럼 <b>즉석조리식품 / 조림류 / 김치</b> 중에서 적어 주세요.</li>` : ""}
+        ${miss.ingr.length ? `<li><b>J열 원재료</b> (${miss.ingr.length}개): 많이 들어간 순서대로, 원산지는 괄호, 주재료는 %. 예) <b>계란(국내산) 80%, 당근(중국산) 8%, 쪽파(국내산) 8%</b></li>` : ""}
+        ${miss.allergy.length ? `<li><b>K열 알레르기</b> (${miss.allergy.length}개): 들어간 것만 적고, 하나도 없으면 <b>없음</b>. 간장이 들어가면 대두·밀, 계란은 알류.</li>` : ""}</ul></div>` : "");
+
+  $("page").innerHTML = `
+    <div class="head"><h2>식품 표시사항 안내</h2>
+      <div class="shop"><b>${esc(name)}</b><br>${esc(where)}<br>${ymd} 기준</div></div>
+    <table><thead><tr><th>제품명</th><th>식품유형</th><th>내용량</th><th>원재료명 및 원산지</th><th>알레르기 유발물질</th><th>소비기한</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="6">반찬목록이 비어 있어요</td></tr>`}</tbody></table>
+    <div class="foot">
+      <div class="box big"><b>제조일·소비기한 날짜는 각 반찬 포장의 라벨에 있어요.</b><span>보관방법: <b>냉장(0~10℃) 보관</b>, 개봉한 제품은 변질될 수 있으니 가능한 한 빨리 드세요.</span></div>
+      <div class="box"><h3>알레르기 안내</h3><p>이 매장의 반찬은 ${ALLERGENS}을(를) 사용한 제품과 같은 시설에서 제조하고 있습니다.</p></div>
+      <div class="box"><h3>교환·환불 및 신고</h3><p>정당한 소비자 피해는 교환·환불해 드립니다.<br>영업소: ${esc(name)} · ${esc(where)}<br><b>부정·불량식품 신고: 국번없이 1399</b></p></div>
+    </div>`;
+}
+
+document.querySelector(".tools").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "print") { window.print(); return; }
+  if (b.dataset.f) { filter = b.dataset.f; document.querySelectorAll("[data-f]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); render(); }
+});
+
+async function load(){
+  if (demo) { data = DEMO; render(); return; }
+  try {
+    const r = await fetch(API_URL, { cache: "no-store" });
+    if (!r.ok) throw new Error();
+    const j = await r.json();
+    if (Array.isArray(j.info)) data = { shop: j.shop || {}, info: j.info };
+    else {
+      data = { shop: j.shop || {}, info: (j.items || []).map(i => ({ on: true, cat: i.cat, name: i.name, unit: i.unit })) };
+      note = "<b>서버(Apps Script)를 새 버전으로 배포해야</b> 식품유형·원재료·알레르기·소비기한이 나와요. 지금은 오늘 파는 반찬 이름만 보여요.";
+    }
+  } catch (e) {
+    data = { shop: {}, info: [] }; note = "반찬 목록을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.";
+  }
+  render();
+}
+load();
+</script>
+</body>
+</html>

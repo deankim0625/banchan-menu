@@ -11,9 +11,10 @@ const SHOP_SHEET = '가게정보';
 const PACK_SHEET = '라벨팩';
 const SALE_SHEET = '판매기록';
 const TZ = 'Asia/Seoul';
-// 반찬목록 열 순서: 오늘판매, 분류, 반찬이름, 용량, 가격, 남은수량, 만든때, 사진, 소비기한(일), 원재료, 알레르기
-const COL = { on: 0, cat: 1, name: 2, unit: 3, price: 4, left: 5, made: 6, photo: 7, days: 8, ingr: 9, allergy: 10 };
-const MENU_EXTRA_HEAD = ['소비기한(일)', '원재료', '알레르기'];
+// 반찬목록 열 순서: 오늘판매, 분류, 반찬이름, 용량, 가격, 남은수량, 만든때, 사진, 소비기한(일), 원재료, 알레르기, 식품유형
+const COL = { on: 0, cat: 1, name: 2, unit: 3, price: 4, left: 5, made: 6, photo: 7, days: 8, ingr: 9, allergy: 10, type: 11 };
+const MENU_EXTRA_HEAD = ['소비기한(일)', '원재료', '알레르기', '식품유형'];
+const MENU_COLS = COL.type + 1;
 const PACK_HEAD = ['코드', '반찬이름', '용량', '가격', '만든날', '소비기한', '상태', '처리시각', '할인가'];
 const SALE_HEAD = ['영수번호', '시각', '반찬이름', '가격', '결제', '코드', '상태'];
 
@@ -49,7 +50,7 @@ function items_() {
   const sh = book_().getSheetByName(MENU_SHEET);
   const last = sh.getLastRow();
   if (last < 2) return [];
-  const nc = Math.min(11, sh.getMaxColumns());
+  const nc = Math.min(MENU_COLS, sh.getMaxColumns());
   return sh.getRange(2, 1, last - 1, nc).getValues().map((r, i) => {
     const d = r[COL.days];
     return {
@@ -64,17 +65,20 @@ function items_() {
       photo: String(r[COL.photo] || '').trim(),
       days: d === '' || d === undefined || isNaN(Number(d)) ? 3 : Math.max(0, Math.min(60, Math.round(Number(d)))),
       ingr: String(r[COL.ingr] || '').trim(),
-      allergy: String(r[COL.allergy] || '').trim()
+      allergy: String(r[COL.allergy] || '').trim(),
+      type: String(r[COL.type] || '').trim()
     };
   }).filter(it => it.name);
 }
 
 function publicData_() {
-  const s = shop_();
+  const s = shop_(), all = items_();
   return {
-    shop: { name: s['가게이름'] || '', tagline: s['한줄소개'] || '', hours: s['영업시간'] || '', phone: s['전화번호'] || '', chat: s['오픈채팅'] || '' },
+    shop: { name: s['가게이름'] || '', tagline: s['한줄소개'] || '', hours: s['영업시간'] || '', phone: s['전화번호'] || '', chat: s['오픈채팅'] || '', address: s['주소'] || '' },
     updatedAt: PropertiesService.getScriptProperties().getProperty('updatedAt') || '',
-    items: items_().filter(it => it.on).map(it => ({ cat: it.cat, name: it.name, unit: it.unit, price: it.price, left: it.left, made: it.made, photo: it.photo }))
+    items: all.filter(it => it.on).map(it => ({ cat: it.cat, name: it.name, unit: it.unit, price: it.price, left: it.left, made: it.made, photo: it.photo })),
+    // 매장 게시 안내판(/notice/)용 표시사항: 오늘 안 파는 반찬도 포함
+    info: all.map(it => ({ on: it.on, cat: it.cat, name: it.name, unit: it.unit, type: it.type, ingr: it.ingr, allergy: it.allergy, days: it.days }))
   };
 }
 
@@ -180,10 +184,10 @@ function ensurePos_() {
   makeSheet_(PACK_SHEET, PACK_HEAD, ['A:A', 'E:F', 'H:H']);
   makeSheet_(SALE_SHEET, SALE_HEAD, ['A:B', 'F:F']);
   const m = book_().getSheetByName(MENU_SHEET);
-  if (m.getMaxColumns() < 11) m.insertColumnsAfter(m.getMaxColumns(), 11 - m.getMaxColumns());
-  const head = m.getRange(1, COL.days + 1, 1, 3).getValues()[0];
+  if (m.getMaxColumns() < MENU_COLS) m.insertColumnsAfter(m.getMaxColumns(), MENU_COLS - m.getMaxColumns());
+  const n = MENU_EXTRA_HEAD.length, head = m.getRange(1, COL.days + 1, 1, n).getValues()[0];
   if (head.some(h => !String(h).trim())) {
-    m.getRange(1, COL.days + 1, 1, 3).setValues([head.map((h, i) => String(h).trim() || MENU_EXTRA_HEAD[i])]);
+    m.getRange(1, COL.days + 1, 1, n).setValues([head.map((h, i) => String(h).trim() || MENU_EXTRA_HEAD[i])]);
   }
 }
 
