@@ -144,6 +144,7 @@
     { "name": "벽면 QR 안내판 (A4)", "desc": "계산대 옆 벽에 붙이는 용도", "url": "qr-poster.png", "pdf": "https://github.com/deankim0625/banchan-menu/blob/main/images/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_QR%EC%95%88%EB%82%B4%ED%8C%90_A4.pdf", "thumb": "thumbs/qr.jpg", "est": "집에서 A4 컬러 인쇄 + 코팅이면 거의 무료 / A2 출력 약 2만 원 + 코팅 약 1만 원" }
   ],
   "files": [
+    { "name": "반찬 사진 준비물 (다이소)", "desc": "사진 보며 고르는 장보기 목록(약 1만 원), 촬영 자리 놓는 법, 가까운 다이소", "url": "https://deankim0625.github.io/banchan-menu/photo-kit/" },
     { "name": "톡방 공지 이미지", "desc": "영업시간·이용 방법·규칙", "url": "https://github.com/deankim0625/banchan-menu/blob/main/images/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_2_%EB%94%B0%EB%9C%BB%ED%95%9C%EC%A7%91%EB%B0%A5_%EA%B3%B5%EC%A7%80.png", "thumb": "thumbs/notice.jpg" },
     { "name": "네이버·카카오·당근 등록 정보 묶음", "desc": "상호·주소·영업시간·소개글·메뉴를 복사 버튼으로. 곳별 등록 순서 포함", "url": "https://deankim0625.github.io/banchan-menu/kit/", "thumb": "thumbs/talk.jpg", "fit": "contain" },
     { "name": "엄마랑 정할 것 (A4 4쪽 PDF)", "desc": "정할 것·반찬 목록 작성표·사진 찍는 법", "url": "https://github.com/deankim0625/banchan-menu/blob/main/forms/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_%EC%97%84%EB%A7%88%EB%9E%91%EC%A0%95%ED%95%A0%EA%B2%83.pdf", "thumb": "thumbs/form.jpg" }
