@@ -97,6 +97,9 @@
     { "name": "라벨 붙인 반찬", "desc": "실링 필름 위 오른쪽 아래에 라벨을 붙인 모습 (실제 라벨 디자인 합성)", "url": "pack-label.png", "thumb": "thumbs/pack-label.jpg" }
   ],
   "prints": [
+    { "name": "단체 주문 안내지 (A4 시안)", "desc": "어린이집·교회·회사·경로당에 돌릴 안내지. '며칠 전까지 · 몇 인분부터' 빈칸은 엄마 확인 후 채움", "url": "group-order.png", "thumb": "thumbs/group-order.jpg", "pdf": "https://github.com/deankim0625/banchan-menu/blob/main/print/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_%EB%8B%A8%EC%B2%B4%EC%A3%BC%EB%AC%B8_%EC%95%88%EB%82%B4%EC%A7%80_A4.pdf" },
+    { "name": "뚜껑 스티커 (지름 50mm 시안)", "desc": "포장 뚜껑에 붙이면 사진 리뷰에 가게 이름이 남음. 원형 스티커 업체에 PDF로 주문", "url": "lid-sticker.png", "thumb": "thumbs/lid-sticker.jpg", "fit": "contain", "pdf": "https://github.com/deankim0625/banchan-menu/blob/main/print/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_%EB%9A%9C%EA%BB%91%EC%8A%A4%ED%8B%B0%EC%BB%A4_50mm.pdf" },
+    { "name": "예약 공지 카드 (설 명절 시안)", "desc": "톡방·당근·네이버 소식용 1080×1350. 날짜·메뉴는 엄마랑 정한 뒤 다시 만들어요 (김장·연말에도 제목만 바꿔 씀)", "url": "reserve-card.png", "thumb": "thumbs/reserve-card.jpg" },
     { "name": "X배너 세운 모습 (실제 디자인)", "desc": "60×180cm. 진짜 인쇄 디자인을 가게 앞 사진에 합성. 가볍고 싸지만 바람에 약함", "url": "xbanner-real.png", "thumb": "thumbs/xbanner-mockup.jpg", "pdf": "https://github.com/deankim0625/banchan-menu/blob/main/print/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_X%EB%B0%B0%EB%84%88_600x1800.pdf", "est": "약 5~7만 원 (출력 2~4만 원 + 실외 거치대 약 2.5만 원)" },
     { "name": "입간판 세운 모습 (제미나이 시안)", "desc": "A형 양면 입간판. 그림 속 QR은 가짜, 실제 인쇄 파일은 옆 카드", "url": "sign-mockup.png", "thumb": "thumbs/sign-mockup.jpg", "est": "약 10~15만 원 (프레임 4.5~6만 원 + 시트 출력·부착 / 업체 맞춤제작 약 15만 원 선)" },
     { "name": "X배너 인쇄 파일 (600×1800mm)", "desc": "진짜 톡방 QR 포함. 반찬 사진 3장은 예시라 실제 사진으로 바꾼 뒤 주문", "url": "xbanner-print.png", "pdf": "https://github.com/deankim0625/banchan-menu/blob/main/print/%EB%A7%88%EB%8B%88%EB%B0%98%EC%B0%AC_X%EB%B0%B0%EB%84%88_600x1800.pdf", "thumb": "thumbs/xbanner-print.jpg" },
@@ -117,6 +120,7 @@
     "라벨 자동화: 계산대에 갤럭시탭 + 라벨프린터(브라더 QL-820NWB 또는 저렴한 블루투스형) 중 고르기, 반찬별 소비기한 일수 (구청 확인 끝: 매장 판매는 게시판으로 갈음)"
   ],
   "log": [
+    { "date": "2026-11-20", "text": "네이버 리뷰 분석(엄마 개업 2023-05-22 기준 분리, 새 등록 대신 이어 쓰기), 리뷰 답글 초안, 마케팅 활성화 전략. 단체 주문 안내지·뚜껑 스티커·예약 공지 카드 시안, 등록 정보 묶음에 톡방 공지·리뷰 부탁·구글 등록 추가, 카카오맵 동네 반찬가게 조사" },
     { "date": "2026-11-20", "text": "반찬목록 소비기한·알레르기·식품유형 초안 채움(엄마 확인 전). 엄마 만남용 빈칸 문서와 마케팅·사업화 기획(손님 → 매장 → 공장) 작성" },
     { "date": "2026-11-20", "text": "연수구청 위생정책과 확인: 매장에서만 팔면 표시사항을 표로 게시하면 개별 라벨 갈음 (배달은 라벨·상세페이지 필요) → 매장 게시 안내판(A4) 만들고 라벨은 날짜·가격·QR 위주로 단순화" },
     { "date": "2026-11-19", "text": "계산대 태블릿 앱을 실제로 동작하게: 구글 시트 라벨팩·판매기록 탭, 카메라 QR 읽기, 62×40 라벨 인쇄, 계산 취소·폐기·마감 할인 (앱스 스크립트 새 버전 배포 후 사용)" },

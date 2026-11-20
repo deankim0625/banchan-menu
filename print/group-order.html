@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>마니반찬 단체 주문 안내지 A4</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+  /* 단체 주문 안내지 · A4 세로. 빈칸(□)은 엄마 확인 후 채움 */
+  @page { size: 210mm 297mm; margin: 0; }
+  :root { --bg:#ffe7a3; --brown:#5a3a22; --tomato:#dc5a35; --cream:#fff8e6; --soft:#f6d27a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Gowun Dodum", "Malgun Gothic", sans-serif; color: var(--brown); word-break: keep-all; }
+  .page { width: 210mm; height: 297mm; padding: 18mm 16mm 14mm; display: flex; flex-direction: column; gap: 8mm; background: var(--bg); }
+  .brand { display: flex; align-items: center; gap: 4mm; }
+  .brand svg { width: 22mm; height: 18mm; color: var(--tomato); }
+  .brand b { font-family: "Jua", sans-serif; font-weight: 400; font-size: 30pt; }
+  h1 { font-family: "Jua", sans-serif; font-weight: 400; font-size: 40pt; line-height: 1.15; }
+  h1 em { font-style: normal; color: var(--tomato); }
+  .who { font-size: 15pt; }
+  .who span { display: inline-block; background: var(--cream); border-radius: 99px; padding: 1.5mm 4.5mm; margin: 0 1.5mm 2mm 0; }
+  .pts { list-style: none; display: flex; flex-direction: column; gap: 4mm; background: var(--cream); border-radius: 8mm; padding: 8mm 9mm; font-size: 15pt; line-height: 1.4; }
+  .pts li { padding-left: 9mm; position: relative; }
+  .pts li::before { content: ""; position: absolute; left: 0; top: .32em; width: 5mm; height: 5mm; border-radius: 50%; background: var(--soft); }
+  .ex { font-size: 13pt; }
+  .ex b { font-family: "Jua", sans-serif; font-weight: 400; font-size: 16pt; display: block; margin-bottom: 2mm; }
+  .order { display: grid; grid-template-columns: 1fr 52mm; gap: 6mm; align-items: center; background: var(--brown); color: var(--cream); border-radius: 8mm; padding: 8mm 9mm; margin-top: auto; }
+  .order h2 { font-family: "Jua", sans-serif; font-weight: 400; font-size: 22pt; color: var(--soft); margin-bottom: 3mm; }
+  .order p { font-size: 15pt; line-height: 1.5; }
+  .order .tel { font-family: "Jua", sans-serif; font-size: 26pt; color: #fff; }
+  .blank { display: inline-block; min-width: 12mm; border-bottom: 2px solid var(--soft); text-align: center; }
+  .qr { background: #fff; border-radius: 4mm; padding: 3mm; text-align: center; color: var(--brown); font-size: 10.5pt; }
+  .qr img { width: 100%; display: block; }
+  .foot { font-size: 12pt; text-align: center; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="brand">
+    <svg viewBox="0 0 160 126"><path d="M52 34c-10-10 10-16 0-28M80 32c-10-10 10-16 0-28M108 34c-10-10 10-16 0-28" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M8 56h144c0 34-32 58-72 58S8 90 8 56z" fill="currentColor"/><rect x="54" y="112" width="52" height="10" rx="5" fill="currentColor"/></svg>
+    <b>마니반찬</b>
+  </div>
+  <h1>모임 반찬,<br><em>미리 말씀만</em> 주세요</h1>
+  <p class="who"><span>어린이집</span><span>교회</span><span>회사 점심</span><span>경로당</span><span>집들이</span><span>제사·명절</span></p>
+  <ul class="pts">
+    <li>매일 아침 직접 만드는 반찬을 원하시는 날에 맞춰 준비해요</li>
+    <li>짜지 않은 집밥 맛 그대로, 인원에 맞게 나눠 담아 드려요</li>
+    <li>반찬 종류와 양은 통화로 상의해서 정해요</li>
+  </ul>
+  <p class="ex"><b>이렇게 주문하세요</b>몇 분이 드실지, 언제 찾으러 오실지, 좋아하는 반찬을 알려 주시면 구성과 가격을 안내해 드려요.</p>
+  <div class="order">
+    <div>
+      <h2>예약 · 문의</h2>
+      <p class="tel">010-4110-7115</p>
+      <p>전화 · 문자 · 카톡 단골방<br><span class="blank">&nbsp;</span>일 전까지 · <span class="blank">&nbsp;</span>인분부터</p>
+    </div>
+    <div class="qr"><img src="../images/kakao-openchat-qr.png" alt="마니반찬 단골방 카카오톡 오픈채팅 QR">카톡 단골방</div>
+  </div>
+  <p class="foot">인천 연수구 선학로 101 · 월~토 오전 8시 ~ 저녁 8시 · 일요일 휴무</p>
+</div>
+</body>
+</html>
