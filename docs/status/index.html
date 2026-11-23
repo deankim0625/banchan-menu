@@ -208,6 +208,8 @@ function render(s, live){
       <section class="card" aria-label="최근 한 일"><h2>최근 한 일</h2><ul class="log">${s.log.map(l => `<li><time>${fmtDate(l.date)}</time>${esc(l.text)}</li>`).join("")}</ul></section>
     </div>
 
+    ${s.hold ? `<section class="card" aria-label="잠시 멈춘 것"><h2>잠시 멈춘 것 <span style="font-weight:400;font-size:.8em;opacity:.7">${fmtDate(s.hold.since)}부터</span></h2><p style="margin:.2em 0 .6em">${esc(s.hold.why)}</p><ul class="plain">${s.hold.items.map(d => `<li>${esc(d)}</li>`).join("")}</ul></section>` : ""}
+
     <section class="card" aria-label="로그인이 필요한 것"><h2>내 계정으로만 열리는 것</h2><ul class="plain">${s.private.map(p => `<li><b>${esc(p.name)}</b> <span>· ${esc(p.desc)}</span></li>`).join("")}</ul></section>`;
 }
 
