@@ -10,16 +10,17 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 1080px; height: 1350px; background: var(--bg); }
   body { font-family: "Gowun Dodum", "Malgun Gothic", sans-serif; color: var(--brown); }
-  .c { width: 1080px; height: 1350px; padding: 90px 84px 80px; display: flex; flex-direction: column; gap: 44px; }
+  .c { width: 1080px; height: 1350px; padding: 80px 84px 70px; display: flex; flex-direction: column; gap: 36px; }
   .brand { display: flex; align-items: center; gap: 18px; font-family: "Jua", sans-serif; font-size: 44px; }
   .brand svg { width: 76px; height: 60px; color: var(--tomato); }
   h1 { font-family: "Jua", sans-serif; font-weight: 400; font-size: 96px; line-height: 1.12; }
   h1 em { font-style: normal; color: var(--tomato); display: block; }
   .box { background: var(--cream); border-radius: 40px; padding: 44px 48px; display: flex; flex-direction: column; gap: 26px; font-size: 40px; line-height: 1.4; }
-  .row { display: grid; grid-template-columns: 210px 1fr; gap: 20px; }
+  .row { display: grid; grid-template-columns: 260px 1fr; gap: 30px; word-break: keep-all; }
+  .box { font-size: 38px; gap: 22px; }
   .row b { font-family: "Jua", sans-serif; font-weight: 400; color: var(--tomato); }
   .note { font-size: 34px; }
-  .foot { margin-top: auto; background: var(--brown); color: var(--cream); border-radius: 30px; padding: 26px 36px; font-size: 38px; display: flex; justify-content: space-between; }
+  .foot { margin-top: auto; background: var(--brown); color: var(--cream); border-radius: 30px; padding: 24px 36px; font-size: 34px; display: flex; justify-content: space-between; white-space: nowrap; }
   .foot b { font-family: "Jua", sans-serif; font-weight: 400; color: var(--soft); }
 </style>
 </head>
@@ -28,20 +29,21 @@
   <div class="brand"><svg viewBox="0 0 160 126"><path d="M52 34c-10-10 10-16 0-28M80 32c-10-10 10-16 0-28M108 34c-10-10 10-16 0-28" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"/><path d="M8 56h144c0 34-32 58-72 58S8 90 8 56z" fill="currentColor"/><rect x="54" y="112" width="52" height="10" rx="5" fill="currentColor"/></svg>마니반찬</div>
   <h1 id="t">설 명절 반찬<em>예약 받아요</em></h1>
   <div class="box">
-    <div class="row"><b>메뉴</b><span id="menu">나물 3색 · 모둠전 · 잡채 · 갈비찜</span></div>
+    <div class="row"><b>메뉴</b><span id="menu">나물 3가지 · 모둠전 · 잡채 · 갈비찜</span></div>
+    <div class="row"><b>가격</b><span id="price">□인분 □원부터</span></div>
     <div class="row"><b>예약 마감</b><span id="due">□월 □일까지</span></div>
-    <div class="row"><b>찾아가는 날</b><span id="pick">□월 □일 ~ □일</span></div>
-    <div class="row"><b>예약 방법</b><span>단골 톡방 또는 010-4110-7115</span></div>
+    <div class="row"><b>가지러 오시는 날</b><span id="pick">□월 □일 ~ □일</span></div>
+    <div class="row"><b>예약 방법</b><span>당근 채팅 · 카톡 단골방<br>전화 010-4110-7115</span></div>
   </div>
   <p class="note" id="note">하루에 만들 수 있는 양이 정해져 있어서 일찍 마감될 수 있어요.</p>
-  <div class="foot"><span><b>마니반찬</b> 인천 연수구 선학로 101</span><span>짜지 않은 집밥 반찬</span></div>
+  <div class="foot"><span><b>마니반찬</b> 선학로 101 · 선학역 2번 출구 4분</span><span>일요일 휴무</span></div>
 </div>
 <script>
 // 쿼리로 내용 바꾸기: title은 "앞|뒤" (뒤가 주황색 줄)
 const q = new URLSearchParams(location.search);
 const set = (id, v) => { if (v) document.getElementById(id).textContent = v; };
 if (q.get("title")) { const [a, b] = q.get("title").split("|"); const t = document.getElementById("t"); t.textContent = a; if (b) { const e = document.createElement("em"); e.textContent = b; t.appendChild(e); } }
-set("menu", q.get("menu")); set("due", q.get("due")); set("pick", q.get("pick")); set("note", q.get("note"));
+set("menu", q.get("menu")); set("price", q.get("price")); set("due", q.get("due")); set("pick", q.get("pick")); set("note", q.get("note"));
 </script>
 </body>
 </html>
